@@ -91,10 +91,10 @@ export function ProductoDialog({
 
   function validar() {
     const e: Record<string, string> = {};
-    if (!form.codigo.trim()) e.codigo = "El código es obligatorio";
-    if (!form.producto.trim()) e.producto = "El nombre es obligatorio";
-    if (Number(form.stock_actual) < 0) e.stock_actual = "No puede ser negativo";
-    if (Number(form.stock_minimo) < 0) e.stock_minimo = "No puede ser negativo";
+    if (!form.codigo.trim()) e["codigo"] = "El código es obligatorio";
+    if (!form.producto.trim()) e["producto"] = "El nombre es obligatorio";
+    if (Number(form.stock_actual) < 0) e["stock_actual"] = "No puede ser negativo";
+    if (Number(form.stock_minimo) < 0) e["stock_minimo"] = "No puede ser negativo";
     setErrores(e);
     return Object.keys(e).length === 0;
   }
