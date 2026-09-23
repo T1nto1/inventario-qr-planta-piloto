@@ -152,3 +152,27 @@
     color: var(--color-foreground);
   }
 }
+
+@layer base {
+  html {
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+}
+
+/* Etiqueta imprimible */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #etiqueta-print,
+  #etiqueta-print * {
+    visibility: visible;
+  }
+  #etiqueta-print {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    padding: 12mm;
+    background: #fff;
+  }
+}
