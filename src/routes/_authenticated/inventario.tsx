@@ -13,7 +13,6 @@ import { exportarExcel } from "@/lib/excel";
 import { EstadoBadge } from "@/components/EstadoBadge";
 import { QrEtiqueta } from "@/components/QrEtiqueta";
 import { ProductoDialog } from "@/components/ProductoDialog";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";

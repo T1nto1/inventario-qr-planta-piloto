@@ -11,7 +11,6 @@ import { EstadoBadge } from "@/components/EstadoBadge";
 import { QrEtiqueta } from "@/components/QrEtiqueta";
 import { MovimientoForm } from "@/components/MovimientoForm";
 import { ProductoDialog } from "@/components/ProductoDialog";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
