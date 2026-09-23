@@ -5,7 +5,6 @@ import { Plus, Search, QrCode, Pencil, FileSpreadsheet, Power } from "lucide-rea
 import { toast } from "sonner";
 import {
   actualizarProducto,
-  estadoDe,
   listarMovimientos,
   listarProductos,
   type Producto,
@@ -187,5 +186,3 @@ function Inventario() {
     </div>
   );
 }
-
-export { estadoDe };
