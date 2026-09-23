@@ -13,7 +13,6 @@ import { exportarExcel } from "@/lib/excel";
 import { EstadoBadge } from "@/components/EstadoBadge";
 import { QrEtiqueta } from "@/components/QrEtiqueta";
 import { ProductoDialog } from "@/components/ProductoDialog";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,7 +35,6 @@ function Inventario() {
   const [qr, setQr] = useState<Producto | null>(null);
   const [editar, setEditar] = useState<Producto | null>(null);
   const [nuevo, setNuevo] = useState(false);
-  const { esAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const productos = useQuery({ queryKey: ["productos"], queryFn: listarProductos });
@@ -72,11 +70,9 @@ function Inventario() {
             <FileSpreadsheet className="size-4" />
             <span className="hidden sm:inline">Exportar a Excel</span>
           </Button>
-          {esAdmin && (
-            <Button onClick={() => setNuevo(true)}>
-              <Plus className="size-4" /> Nuevo
-            </Button>
-          )}
+          <Button onClick={() => setNuevo(true)}>
+            <Plus className="size-4" /> Nuevo producto
+          </Button>
         </div>
       </div>
 
@@ -143,38 +139,31 @@ function Inventario() {
                 <Button variant="outline" size="icon" title="Ver QR" onClick={() => setQr(p)}>
                   <QrCode className="size-4" />
                 </Button>
-                {esAdmin && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      title="Editar"
-                      onClick={() => setEditar(p)}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      title={p.activo ? "Desactivar" : "Activar"}
-                      onClick={() => toggleActivo.mutate(p)}
-                    >
-                      <Power className="size-4" />
-                    </Button>
-                  </>
-                )}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  title="Editar"
+                  onClick={() => setEditar(p)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  title={p.activo ? "Desactivar" : "Activar"}
+                  onClick={() => toggleActivo.mutate(p)}
+                >
+                  <Power className="size-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {!esAdmin && (
-        <p className="text-xs text-muted-foreground">
-          Solo los administradores pueden crear, editar o desactivar productos. Los productos no se
-          eliminan: se desactivan para conservar su historial.
-        </p>
-      )}
+      <p className="text-xs text-muted-foreground">
+        Los productos no se eliminan: se desactivan para conservar su historial.
+      </p>
 
       {qr && <QrEtiqueta producto={qr} abierto={!!qr} onOpenChange={(v) => !v && setQr(null)} />}
       <ProductoDialog
