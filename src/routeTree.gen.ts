@@ -10,33 +10,120 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEscanearRouteImport } from './routes/_authenticated/escanear'
+import { Route as AuthenticatedInventarioRouteImport } from './routes/_authenticated/inventario'
+import { Route as AuthenticatedMovimientosRouteImport } from './routes/_authenticated/movimientos'
+import { Route as AuthenticatedProductoCodigoRouteImport } from './routes/_authenticated/producto.$codigo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEscanearRoute = AuthenticatedEscanearRouteImport.update({
+  id: '/escanear',
+  path: '/escanear',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInventarioRoute = AuthenticatedInventarioRouteImport.update({
+  id: '/inventario',
+  path: '/inventario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMovimientosRoute =
+  AuthenticatedMovimientosRouteImport.update({
+    id: '/movimientos',
+    path: '/movimientos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductoCodigoRoute =
+  AuthenticatedProductoCodigoRouteImport.update({
+    id: '/producto/$codigo',
+    path: '/producto/$codigo',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/escanear': typeof AuthenticatedEscanearRoute
+  '/inventario': typeof AuthenticatedInventarioRoute
+  '/movimientos': typeof AuthenticatedMovimientosRoute
+  '/producto/$codigo': typeof AuthenticatedProductoCodigoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/escanear': typeof AuthenticatedEscanearRoute
+  '/inventario': typeof AuthenticatedInventarioRoute
+  '/movimientos': typeof AuthenticatedMovimientosRoute
+  '/producto/$codigo': typeof AuthenticatedProductoCodigoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/escanear': typeof AuthenticatedEscanearRoute
+  '/_authenticated/inventario': typeof AuthenticatedInventarioRoute
+  '/_authenticated/movimientos': typeof AuthenticatedMovimientosRoute
+  '/_authenticated/producto/$codigo': typeof AuthenticatedProductoCodigoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/escanear'
+    | '/inventario'
+    | '/movimientos'
+    | '/producto/$codigo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/escanear'
+    | '/inventario'
+    | '/movimientos'
+    | '/producto/$codigo'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/escanear'
+    | '/_authenticated/inventario'
+    | '/_authenticated/movimientos'
+    | '/_authenticated/producto/$codigo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +135,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/escanear': {
+      id: '/_authenticated/escanear'
+      path: '/escanear'
+      fullPath: '/escanear'
+      preLoaderRoute: typeof AuthenticatedEscanearRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventario': {
+      id: '/_authenticated/inventario'
+      path: '/inventario'
+      fullPath: '/inventario'
+      preLoaderRoute: typeof AuthenticatedInventarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/movimientos': {
+      id: '/_authenticated/movimientos'
+      path: '/movimientos'
+      fullPath: '/movimientos'
+      preLoaderRoute: typeof AuthenticatedMovimientosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/producto/$codigo': {
+      id: '/_authenticated/producto/$codigo'
+      path: '/producto/$codigo'
+      fullPath: '/producto/$codigo'
+      preLoaderRoute: typeof AuthenticatedProductoCodigoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEscanearRoute: typeof AuthenticatedEscanearRoute
+  AuthenticatedInventarioRoute: typeof AuthenticatedInventarioRoute
+  AuthenticatedMovimientosRoute: typeof AuthenticatedMovimientosRoute
+  AuthenticatedProductoCodigoRoute: typeof AuthenticatedProductoCodigoRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEscanearRoute: AuthenticatedEscanearRoute,
+  AuthenticatedInventarioRoute: AuthenticatedInventarioRoute,
+  AuthenticatedMovimientosRoute: AuthenticatedMovimientosRoute,
+  AuthenticatedProductoCodigoRoute: AuthenticatedProductoCodigoRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
