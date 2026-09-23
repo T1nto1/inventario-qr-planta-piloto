@@ -8,6 +8,13 @@
       "when": 1790174901798,
       "tag": "0000_inventario_qr_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790190224756,
+      "tag": "0001_productos_sin_delete",
+      "breakpoints": true
     }
   ]
 }

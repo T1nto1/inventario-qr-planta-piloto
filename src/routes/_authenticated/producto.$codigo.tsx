@@ -36,7 +36,6 @@ export const Route = createFileRoute("/_authenticated/producto/$codigo")({
 
 function FichaProducto() {
   const { codigo } = Route.useParams();
-  const { esAdmin } = useAuth();
   const [qr, setQr] = useState(false);
   const [editar, setEditar] = useState(false);
 
@@ -108,11 +107,9 @@ function FichaProducto() {
               <Button variant="outline" onClick={() => setQr(true)}>
                 <QrCode className="size-4" /> Ver QR
               </Button>
-              {esAdmin && (
-                <Button variant="outline" onClick={() => setEditar(true)}>
-                  <Pencil className="size-4" />
-                </Button>
-              )}
+              <Button variant="outline" onClick={() => setEditar(true)}>
+                <Pencil className="size-4" /> Editar
+              </Button>
             </div>
           </div>
 
@@ -137,7 +134,7 @@ function FichaProducto() {
           <CardTitle className="text-base">Registrar movimiento</CardTitle>
         </CardHeader>
         <CardContent>
-          <MovimientoForm producto={p} permitirAjuste={esAdmin} />
+          <MovimientoForm producto={p} permitirAjuste />
         </CardContent>
       </Card>
 
