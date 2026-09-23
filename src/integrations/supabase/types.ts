@@ -14,16 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      movimientos: {
+        Row: {
+          cantidad: number
+          cantidad_firmada: number
+          fecha_hora: string
+          id: string
+          observacion: string
+          product_id: string
+          stock_anterior: number
+          stock_posterior: number
+          tipo: string
+          user_id: string | null
+          usuario: string
+        }
+        Insert: {
+          cantidad: number
+          cantidad_firmada: number
+          fecha_hora?: string
+          id?: string
+          observacion?: string
+          product_id: string
+          stock_anterior: number
+          stock_posterior: number
+          tipo: string
+          user_id?: string | null
+          usuario?: string
+        }
+        Update: {
+          cantidad?: number
+          cantidad_firmada?: number
+          fecha_hora?: string
+          id?: string
+          observacion?: string
+          product_id?: string
+          stock_anterior?: number
+          stock_posterior?: number
+          tipo?: string
+          user_id?: string | null
+          usuario?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimientos_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      productos: {
+        Row: {
+          activo: boolean
+          categoria: string
+          codigo: string
+          created_at: string
+          descripcion: string
+          id: string
+          producto: string
+          stock_actual: number
+          stock_minimo: number
+          ubicacion: string
+          unidad: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          categoria?: string
+          codigo: string
+          created_at?: string
+          descripcion?: string
+          id?: string
+          producto: string
+          stock_actual?: number
+          stock_minimo?: number
+          ubicacion?: string
+          unidad?: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          categoria?: string
+          codigo?: string
+          created_at?: string
+          descripcion?: string
+          id?: string
+          producto?: string
+          stock_actual?: number
+          stock_minimo?: number
+          ubicacion?: string
+          unidad?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      mover_stock: {
+        Args: {
+          p_cantidad: number
+          p_observacion?: string
+          p_product_id: string
+          p_tipo: string
+        }
+        Returns: {
+          cantidad: number
+          cantidad_firmada: number
+          fecha_hora: string
+          id: string
+          observacion: string
+          product_id: string
+          stock_anterior: number
+          stock_posterior: number
+          tipo: string
+          user_id: string | null
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "movimientos"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "usuario"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +316,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "usuario"],
+    },
   },
 } as const
