@@ -128,7 +128,7 @@ export function ProductoDialog({
                 onChange={(e) => setForm({ ...form, codigo: e.target.value.toUpperCase() })}
                 placeholder="PER-001"
               />
-              {errores.codigo && <p className="text-xs text-destructive">{errores.codigo}</p>}
+              {errores["codigo"] && <p className="text-xs text-destructive">{errores["codigo"]}</p>}
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="unidad">Unidad</Label>
@@ -154,7 +154,7 @@ export function ProductoDialog({
               value={form.producto}
               onChange={(e) => setForm({ ...form, producto: e.target.value })}
             />
-            {errores.producto && <p className="text-xs text-destructive">{errores.producto}</p>}
+            {errores["producto"] && <p className="text-xs text-destructive">{errores["producto"]}</p>}
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
@@ -198,8 +198,8 @@ export function ProductoDialog({
                 value={form.stock_actual}
                 onChange={(e) => setForm({ ...form, stock_actual: Number(e.target.value) })}
               />
-              {errores.stock_actual && (
-                <p className="text-xs text-destructive">{errores.stock_actual}</p>
+              {errores["stock_actual"] && (
+                <p className="text-xs text-destructive">{errores["stock_actual"]}</p>
               )}
             </div>
             <div className="grid gap-1.5">
@@ -212,8 +212,8 @@ export function ProductoDialog({
                 value={form.stock_minimo}
                 onChange={(e) => setForm({ ...form, stock_minimo: Number(e.target.value) })}
               />
-              {errores.stock_minimo && (
-                <p className="text-xs text-destructive">{errores.stock_minimo}</p>
+              {errores["stock_minimo"] && (
+                <p className="text-xs text-destructive">{errores["stock_minimo"]}</p>
               )}
             </div>
           </div>
