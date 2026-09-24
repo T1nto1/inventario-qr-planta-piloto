@@ -64,6 +64,38 @@ export type Database = {
           },
         ]
       }
+      producto_fotos: {
+        Row: {
+          created_at: string
+          id: string
+          orden: number
+          product_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          orden?: number
+          product_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          orden?: number
+          product_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "producto_fotos_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       productos: {
         Row: {
           activo: boolean
@@ -71,12 +103,17 @@ export type Database = {
           codigo: string
           created_at: string
           descripcion: string
+          diametro_externo: number | null
+          diametro_interno: number | null
+          espesor: number | null
           id: string
+          largo: number | null
           producto: string
           stock_actual: number
           stock_minimo: number
           ubicacion: string
           unidad: string
+          unidad_dimensional: string
           updated_at: string
         }
         Insert: {
@@ -85,12 +122,17 @@ export type Database = {
           codigo: string
           created_at?: string
           descripcion?: string
+          diametro_externo?: number | null
+          diametro_interno?: number | null
+          espesor?: number | null
           id?: string
+          largo?: number | null
           producto: string
           stock_actual?: number
           stock_minimo?: number
           ubicacion?: string
           unidad?: string
+          unidad_dimensional?: string
           updated_at?: string
         }
         Update: {
@@ -99,12 +141,17 @@ export type Database = {
           codigo?: string
           created_at?: string
           descripcion?: string
+          diametro_externo?: number | null
+          diametro_interno?: number | null
+          espesor?: number | null
           id?: string
+          largo?: number | null
           producto?: string
           stock_actual?: number
           stock_minimo?: number
           ubicacion?: string
           unidad?: string
+          unidad_dimensional?: string
           updated_at?: string
         }
         Relationships: []
@@ -153,6 +200,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      eliminar_producto: { Args: { p_product_id: string }; Returns: string[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
