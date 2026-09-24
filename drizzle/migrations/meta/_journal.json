@@ -15,6 +15,13 @@
       "when": 1790190224756,
       "tag": "0001_productos_sin_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790260218072,
+      "tag": "0002_dimensiones_fotos_borrado",
+      "breakpoints": true
     }
   ]
 }
