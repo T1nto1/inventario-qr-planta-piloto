@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#12324a" />
+  <title>Inventario QR – Planta Piloto</title>
+  <style>
+    :root{
+      --bg:#f5f7f9;--card:#fff;--ink:#17212b;--muted:#64748b;--line:#dbe3ea;
+      --primary:#12324a;--primary2:#1f4f73;--ok:#0f766e;--warn:#b45309;--danger:#b91c1c;
+      --soft:#eef3f7;--radius:16px;--shadow:0 8px 28px rgba(17,24,39,.08)
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+    button,input,select,textarea{font:inherit} button{cursor:pointer}
+    .hidden{display:none!important}.app{min-height:100vh}.shell{max-width:1180px;margin:auto;padding:18px}
+    header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    .topbar{max-width:1180px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+    .brand{font-weight:800;color:var(--primary);display:flex;gap:10px;align-items:center}.brand-badge{width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff;display:grid;place-items:center}
+    nav{display:flex;gap:8px;flex-wrap:wrap}.nav-btn{border:0;background:transparent;padding:9px 12px;border-radius:10px;color:var(--muted)}.nav-btn.active,.nav-btn:hover{background:var(--soft);color:var(--primary);font-weight:700}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:10px;font-weight:650}.btn:hover{background:#f8fafc}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{background:#fff;color:var(--danger);border-color:#fecaca}.btn.small{padding:7px 10px;font-size:.9rem}
+    .grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    .kpi .v{font-size:2rem;font-weight:800;color:var(--primary)}.kpi .l{color:var(--muted);font-size:.9rem}.page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0 16px}
+    h1,h2,h3{margin:0}.muted{color:var(--muted)}.search-row{display:grid;grid-template-columns:1fr 240px;gap:10px;margin-bottom:14px}
+    input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;outline:none}input:focus,select:focus,textarea:focus{border-color:#7aa5c3;box-shadow:0 0 0 3px rgba(31,79,115,.12)}
+    .product-list{display:grid;gap:10px}.product{display:grid;grid-template-columns:74px 1fr auto auto;gap:14px;align-items:center}.thumb{width:74px;height:74px;border-radius:12px;background:var(--soft);object-fit:cover;border:1px solid var(--line)}
+    .product-title{font-weight:800}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}.chip{font-size:.75rem;padding:4px 7px;border-radius:999px;background:var(--soft);color:var(--primary);font-weight:700}.chip.ok{background:#ccfbf1;color:#115e59}.chip.warn{background:#ffedd5;color:#9a3412}.chip.danger{background:#fee2e2;color:#991b1b}
+    .stock{text-align:right;min-width:110px}.stock strong{display:block;font-size:1.25rem}.row-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.table th{font-size:.78rem;text-transform:uppercase;color:var(--muted)}
+    dialog{border:0;border-radius:18px;padding:0;max-width:780px;width:min(96vw,780px);box-shadow:0 30px 80px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(15,23,42,.55)}.dialog-body{padding:20px}.dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.span2{grid-column:1/-1}.field label{display:block;font-size:.85rem;font-weight:700;margin-bottom:5px}.section-title{font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800;margin-top:6px}
+    .gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.gallery img{width:100%;height:150px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}.photo-box{position:relative}.photo-box button{position:absolute;top:6px;right:6px}
+    .detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.mini{padding:12px;border:1px solid var(--line);border-radius:12px}.mini .t{font-size:.72rem;text-transform:uppercase;color:var(--muted)}.mini .v{font-weight:750;margin-top:3px}
+    .auth{min-height:100vh;display:grid;place-items:center;padding:24px}.auth-card{width:min(440px,100%);background:#fff;padding:26px;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow)}.auth-card h1{margin-bottom:6px}.tabs{display:flex;gap:8px;margin:18px 0}.tabs button{flex:1}
+    .msg{padding:10px 12px;border-radius:10px;margin-top:10px;font-size:.9rem}.msg.err{background:#fee2e2;color:#991b1b}.msg.ok{background:#dcfce7;color:#166534}
+    .scanner{max-width:460px;margin:auto}.footer-note{font-size:.78rem;color:var(--muted);margin-top:16px}
+    @media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}.search-row{grid-template-columns:1fr}.product{grid-template-columns:56px 1fr}.thumb{width:56px;height:56px}.stock{grid-column:2;text-align:left}.row-actions{grid-column:1/-1}.detail-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.span2{grid-column:auto}.topbar{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+<div id="authView" class="auth">
+  <div class="auth-card">
+    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto</div></div>
+    <p class="muted">Inventario compartido en la nube.</p>
+    <div class="tabs"><button id="tabLogin" class="btn primary">Ingresar</button><button id="tabSignup" class="btn">Registrarse</button></div>
+    <form id="authForm" class="grid">
+      <div class="field"><label>Email</label><input id="authEmail" type="email" required placeholder="correo@ejemplo.cl"></div>
+      <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="6" required></div>
+      <button class="btn primary" type="submit" id="authSubmit">Ingresar</button>
+      <div id="authMsg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="appView" class="app hidden">
+<header>
+  <div class="topbar">
+    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto</div></div>
+    <nav>
+      <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+      <button class="nav-btn" data-page="inventario">Inventario</button>
+      <button class="nav-btn" data-page="movimientos">Movimientos</button>
+      <button class="nav-btn" data-page="escanear">Escanear QR</button>
+    </nav>
+    <div class="actions"><span id="userEmail" class="muted"></span><button id="logoutBtn" class="btn small">Salir</button></div>
+  </div>
+</header>
+<main class="shell">
+  <section id="page-dashboard">
+    <div class="page-head"><div><h2>Dashboard</h2><p class="muted">Estado general del inventario.</p></div></div>
+    <div class="grid kpis">
+      <div class="card kpi"><div id="kpiTotal" class="v">0</div><div class="l">Productos</div></div>
+      <div class="card kpi"><div id="kpiLow" class="v">0</div><div class="l">Stock bajo</div></div>
+      <div class="card kpi"><div id="kpiZero" class="v">0</div><div class="l">Sin stock</div></div>
+      <div class="card kpi"><div id="kpiMov" class="v">0</div><div class="l">Movimientos recientes</div></div>
+    </div>
+  </section>
+
+  <section id="page-inventario" class="hidden">
+    <div class="page-head">
+      <div><h2>Inventario</h2><p class="muted">Busca, filtra y administra productos.</p></div>
+      <div class="actions"><button id="exportBtn" class="btn">Exportar a Excel</button><button id="newProductBtn" class="btn primary">+ Nuevo producto</button></div>
+    </div>
+    <div class="search-row"><input id="searchInput" placeholder="Buscar código, producto, categoría o ubicación…"><select id="categoryFilter"></select></div>
+    <div id="productList" class="product-list"></div>
+  </section>
+
+  <section id="page-movimientos" class="hidden">
+    <div class="page-head"><div><h2>Movimientos</h2><p class="muted">Historial inmutable de entradas, salidas y ajustes.</p></div></div>
+    <div class="card table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Código</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock anterior</th><th>Stock posterior</th><th>Usuario</th><th>Observación</th></tr></thead><tbody id="movTable"></tbody></table></div>
+  </section>
+
+  <section id="page-escanear" class="hidden">
+    <div class="page-head"><div><h2>Escanear QR</h2><p class="muted">Usa la cámara o busca el código manualmente.</p></div></div>
+    <div class="card scanner"><div id="qr-reader"></div><div class="actions" style="margin-top:12px"><button id="startScanner" class="btn primary">Activar cámara</button><button id="stopScanner" class="btn">Detener</button></div><div style="margin-top:14px"><input id="manualCode" placeholder="Ej. PER-001"><button id="manualGo" class="btn primary" style="margin-top:8px;width:100%">Abrir producto</button></div></div>
+  </section>
+
+  <section id="page-producto" class="hidden">
+    <div class="page-head"><button id="backInventory" class="btn">← Inventario</button><div class="actions"><button id="viewQrBtn" class="btn">Ver QR</button><button id="editCurrentBtn" class="btn">Editar</button><button id="deleteCurrentBtn" class="btn danger">Eliminar producto</button></div></div>
+    <div id="productDetail"></div>
+  </section>
+</main>
+</div>
+
+<dialog id="productDialog"><div class="dialog-body">
+  <div class="dialog-head"><div><h3 id="productDialogTitle">Nuevo producto</h3><p class="muted">Completa los datos. Las dimensiones y fotos son opcionales.</p></div><button class="btn small" data-close="productDialog">✕</button></div>
+  <form id="productForm" class="form-grid">
+    <input type="hidden" id="productId">
+    <div class="field"><label>Código *</label><input id="codigo" required></div>
+    <div class="field"><label>Unidad</label><select id="unidad"><option>un</option><option>kg</option><option>m</option><option>L</option><option>caja</option><option>rollo</option><option>otra</option></select></div>
+    <div class="field span2"><label>Producto *</label><input id="producto" required></div>
+    <div class="field"><label>Categoría</label><select id="categoriaSelect"></select></div>
+    <div class="field hidden" id="otraCatWrap"><label>Otra categoría</label><input id="categoriaOtra"></div>
+    <div class="field"><label>Ubicación</label><input id="ubicacion"></div>
+    <div class="field span2"><label>Descripción</label><textarea id="descripcion" rows="2"></textarea></div>
+    <div class="field"><label>Stock inicial</label><input id="stockActual" type="number" min="0" step="any"></div>
+    <div class="field"><label>Stock mínimo</label><input id="stockMinimo" type="number" min="0" step="any"></div>
+    <div class="span2 section-title">Dimensiones (opcionales)</div>
+    <div class="field"><label>Diámetro interno</label><input id="diametroInterno" type="number" min="0" step="any"></div>
+    <div class="field"><label>Diámetro externo</label><input id="diametroExterno" type="number" min="0" step="any"></div>
+    <div class="field"><label>Largo</label><input id="largo" type="number" min="0" step="any"></div>
+    <div class="field"><label>Espesor</label><input id="espesor" type="number" min="0" step="any"></div>
+    <div class="field"><label>Unidad dimensional</label><select id="unidadDim"><option>mm</option><option>cm</option><option>m</option></select></div>
+    <div class="field"><label>Producto activo</label><select id="activo"><option value="true">Sí</option><option value="false">No</option></select></div>
+    <div class="span2 section-title">Fotos (opcional, máximo 3)</div>
+    <div class="field span2"><input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple><div id="photoPreview" class="gallery" style="margin-top:10px"></div></div>
+    <div id="productFormMsg" class="span2"></div>
+    <div class="span2 actions" style="justify-content:flex-end"><button type="button" class="btn" data-close="productDialog">Cancelar</button><button type="submit" class="btn primary">Guardar</button></div>
+  </form>
+</div></dialog>
+
+<dialog id="moveDialog"><div class="dialog-body">
+  <div class="dialog-head"><div><h3>Registrar movimiento</h3><p id="moveProductLabel" class="muted"></p></div><button class="btn small" data-close="moveDialog">✕</button></div>
+  <form id="moveForm" class="grid">
+    <div class="field"><label>Tipo</label><select id="moveType"><option>ENTRADA</option><option>SALIDA</option><option>AJUSTE</option></select></div>
+    <div class="field"><label>Cantidad / stock final</label><input id="moveQty" type="number" min="0" step="any" required></div>
+    <div class="field"><label>Observación</label><textarea id="moveObs" rows="2"></textarea></div>
+    <div id="moveMsg"></div>
+    <div class="actions" style="justify-content:flex-end"><button type="button" class="btn" data-close="moveDialog">Cancelar</button><button class="btn primary">Registrar</button></div>
+  </form>
+</div></dialog>
+
+<dialog id="qrDialog"><div class="dialog-body">
+  <div class="dialog-head"><div><h3>Etiqueta QR</h3><p id="qrLabel" class="muted"></p></div><button class="btn small" data-close="qrDialog">✕</button></div>
+  <div id="qrcode" style="display:grid;place-items:center;padding:16px"></div>
+  <div class="actions" style="justify-content:center"><button id="printQrBtn" class="btn primary">Imprimir etiqueta</button></div>
+</div></dialog>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
+import QRCode from "https://esm.sh/qrcode@1.5.4";
+import * as XLSX from "https://esm.sh/xlsx@0.18.5";
+
+const SUPABASE_URL = "https://bofoiufsgvjyrgjqvdhx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_3pZ1cnw7addMFh5hSBXlVg_1c--Or7c";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CATS=["Tubos","Lanzas","Reactivos químicos","Instrumentación","Insumos básicos","Crisoles","Resistencias","Tapas de horno","Termocuplas","Sondas","O-rings","Otra"];
+let signupMode=false, products=[], movements=[], photosByProduct={}, currentProduct=null, scanner=null, pendingFiles=[];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+const numOrNull=v=>v===""?null:Number(v);
+const state=p=>Number(p.stock_actual)<=0?"SIN STOCK":Number(p.stock_actual)<=Number(p.stock_minimo)?"REPOSICIÓN":"OK";
+const stateClass=s=>s==="OK"?"ok":s==="REPOSICIÓN"?"warn":"danger";
+function setMsg(id,msg,ok=false){$(id).innerHTML=msg?`<div class="msg ${ok?"ok":"err"}">${esc(msg)}</div>`:""}
+function setBusy(btn,busy,label){
+  if(!btn)return;
+  if(busy){
+    if(!btn.dataset.originalText) btn.dataset.originalText=btn.textContent;
+    btn.disabled=true;
+    if(label) btn.textContent=label;
+  }else{
+    btn.disabled=false;
+    if(btn.dataset.originalText){btn.textContent=btn.dataset.originalText;delete btn.dataset.originalText}
+  }
+}
+function categoriesInit(){
+  $("categoriaSelect").innerHTML=CATS.map(c=>`<option>${esc(c)}</option>`).join("");
+  updateCategoryFilter();
+}
+function updateCategoryFilter(){
+  const select=$("categoryFilter");
+  if(!select)return;
+  const actual=select.value;
+  const existentes=[...new Set(products.map(p=>String(p.categoria||"").trim()).filter(Boolean))];
+  const categorias=[...new Set([...CATS.filter(c=>c!=="Otra"),...existentes])].sort((a,b)=>a.localeCompare(b,"es"));
+  select.innerHTML=`<option value="">Todas las categorías</option>`+categorias.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  if(categorias.includes(actual)) select.value=actual;
+}
+categoriesInit();
+
+async function signedUrl(path){
+  const {data,error}=await supabase.storage.from("producto-fotos").createSignedUrl(path,3600);
+  return error?null:data.signedUrl;
+}
+async function refreshData(){
+  const [{data:p,error:pe},{data:m,error:me},{data:f,error:fe}] = await Promise.all([
+    supabase.from("productos").select("*").order("codigo"),
+    supabase.from("movimientos").select("*,productos(codigo,producto)").order("fecha_hora",{ascending:false}).limit(1000),
+    supabase.from("producto_fotos").select("*").order("orden")
+  ]);
+  if(pe) throw pe;if(me) throw me;if(fe) throw fe;
+  products=p||[];movements=m||[];photosByProduct={};
+  for(const x of f||[]){(photosByProduct[x.product_id]??=[]).push(x)}
+  for(const [pid,arr] of Object.entries(photosByProduct)){
+    for(const x of arr) x.url=await signedUrl(x.storage_path);
+  }
+  renderAll();
+}
+function renderAll(){updateCategoryFilter();renderDashboard();renderProducts();renderMoves();if(currentProduct){currentProduct=products.find(p=>p.id===currentProduct.id)||null;if(currentProduct)renderDetail()}}
+function renderDashboard(){
+  $("kpiTotal").textContent=products.length;
+  $("kpiLow").textContent=products.filter(p=>Number(p.stock_actual)>0&&Number(p.stock_actual)<=Number(p.stock_minimo)).length;
+  $("kpiZero").textContent=products.filter(p=>Number(p.stock_actual)<=0).length;
+  const since=Date.now()-7*864e5;$("kpiMov").textContent=movements.filter(m=>new Date(m.fecha_hora).getTime()>=since).length;
+}
+function renderProducts(){
+  const q=$("searchInput").value.trim().toLowerCase(), cat=$("categoryFilter").value;
+  const list=products.filter(p=>(!cat||p.categoria===cat)&&(!q||[p.codigo,p.producto,p.categoria,p.ubicacion].join(" ").toLowerCase().includes(q)));
+  $("productList").innerHTML=list.length?list.map(p=>{
+    const s=state(p), ph=(photosByProduct[p.id]||[])[0]?.url;
+    return `<div class="card product" style="${p.activo?"":"opacity:.6"}">
+      ${ph?`<img class="thumb" src="${ph}" alt="">`:`<div class="thumb" style="display:grid;place-items:center;color:var(--muted)">QR</div>`}
+      <div><div class="chips"><span class="chip">${esc(p.codigo)}</span><span class="chip ${stateClass(s)}">${s}</span>${p.activo?"":"<span class='chip'>Inactivo</span>"}</div>
+      <div class="product-title">${esc(p.producto)}</div><div class="muted">${esc(p.categoria||"")} · ${esc(p.ubicacion||"")}</div></div>
+      <div class="stock"><strong>${Number(p.stock_actual)} ${esc(p.unidad)}</strong><span class="muted">mín. ${Number(p.stock_minimo)}</span></div>
+      <div class="row-actions"><button class="btn small" data-open="${p.id}">Abrir</button><button class="btn small" data-move="${p.id}">Movimiento</button><button class="btn small" data-edit="${p.id}">Editar</button></div>
+    </div>`}).join(""):`<div class="card muted">No se encontraron productos.</div>`;
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openProduct(b.dataset.open));
+  document.querySelectorAll("[data-move]").forEach(b=>b.onclick=()=>openMove(b.dataset.move));
+  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openProductDialog(products.find(p=>p.id===b.dataset.edit)));
+}
+function renderMoves(){
+  $("movTable").innerHTML=movements.map(m=>`<tr><td>${new Date(m.fecha_hora).toLocaleString("es-CL")}</td><td>${esc(m.productos?.codigo||"")}</td><td>${esc(m.productos?.producto||"")}</td><td>${esc(m.tipo)}</td><td>${Number(m.cantidad)}</td><td>${Number(m.stock_anterior)}</td><td>${Number(m.stock_posterior)}</td><td>${esc(m.usuario)}</td><td>${esc(m.observacion||"")}</td></tr>`).join("");
+}
+function showPage(name){
+  ["dashboard","inventario","movimientos","escanear","producto"].forEach(p=>$("page-"+p).classList.toggle("hidden",p!==name));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+}
+document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+$("searchInput").oninput=renderProducts;$("categoryFilter").onchange=renderProducts;
+$("newProductBtn").onclick=()=>openProductDialog(null);
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());
+
+function openProduct(id){
+  currentProduct=products.find(p=>p.id===id);if(!currentProduct)return;
+  renderDetail();showPage("producto");location.hash=`producto/${encodeURIComponent(currentProduct.codigo)}`;
+}
+function dimRow(label,v,u){return v==null?"":`<div class="mini"><div class="t">${label}</div><div class="v">${Number(v)} ${esc(u)}</div></div>`}
+function renderDetail(){
+  const p=currentProduct, s=state(p), pics=photosByProduct[p.id]||[];
+  $("productDetail").innerHTML=`<div class="grid">
+    <div class="card"><div class="chips"><span class="chip">${esc(p.codigo)}</span><span class="chip ${stateClass(s)}">${s}</span></div><h2 style="margin-top:8px">${esc(p.producto)}</h2><p class="muted">${esc(p.descripcion||"")}</p>
+    ${pics.length?`<div class="gallery">${pics.map(x=>`<img src="${x.url}" alt="">`).join("")}</div>`:""}
+    <div class="detail-grid" style="margin-top:14px">
+      <div class="mini"><div class="t">Stock actual</div><div class="v">${Number(p.stock_actual)} ${esc(p.unidad)}</div></div>
+      <div class="mini"><div class="t">Stock mínimo</div><div class="v">${Number(p.stock_minimo)} ${esc(p.unidad)}</div></div>
+      <div class="mini"><div class="t">Categoría</div><div class="v">${esc(p.categoria||"—")}</div></div>
+      <div class="mini"><div class="t">Ubicación</div><div class="v">${esc(p.ubicacion||"—")}</div></div>
+      ${dimRow("Diámetro interno",p.diametro_interno,p.unidad_dimensional)}
+      ${dimRow("Diámetro externo",p.diametro_externo,p.unidad_dimensional)}
+      ${dimRow("Largo",p.largo,p.unidad_dimensional)}
+      ${dimRow("Espesor",p.espesor,p.unidad_dimensional)}
+    </div></div>
+    <div class="card"><div class="page-head"><h3>Registrar movimiento</h3><button id="detailMove" class="btn primary">Nuevo movimiento</button></div></div>
+    <div class="card"><h3>Historial</h3><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Stock</th><th>Usuario</th><th>Obs.</th></tr></thead><tbody>${movements.filter(m=>m.product_id===p.id).map(m=>`<tr><td>${new Date(m.fecha_hora).toLocaleString("es-CL")}</td><td>${m.tipo}</td><td>${Number(m.cantidad_firmada)>0?"+":""}${Number(m.cantidad_firmada)}</td><td>${Number(m.stock_anterior)} → ${Number(m.stock_posterior)}</td><td>${esc(m.usuario)}</td><td>${esc(m.observacion||"")}</td></tr>`).join("")}</tbody></table></div></div>
+  </div>`;
+  $("detailMove").onclick=()=>openMove(p.id);
+}
+$("backInventory").onclick=()=>{showPage("inventario");location.hash=""};
+$("editCurrentBtn").onclick=()=>currentProduct&&openProductDialog(currentProduct);
+$("deleteCurrentBtn").onclick=deleteCurrent;
+$("viewQrBtn").onclick=()=>currentProduct&&showQr(currentProduct);
+
+function openProductDialog(p){
+  pendingFiles=[];setMsg("productFormMsg","");
+  $("productDialogTitle").textContent=p?"Editar producto":"Nuevo producto";
+  $("productId").value=p?.id||"";$("codigo").value=p?.codigo||"";$("codigo").disabled=!!p;
+  $("producto").value=p?.producto||"";$("unidad").value=p?.unidad||"un";$("ubicacion").value=p?.ubicacion||"";$("descripcion").value=p?.descripcion||"";
+  $("stockActual").value=p?Number(p.stock_actual):0;$("stockActual").disabled=!!p;$("stockMinimo").value=p?Number(p.stock_minimo):0;
+  $("diametroInterno").value=p?.diametro_interno??"";$("diametroExterno").value=p?.diametro_externo??"";$("largo").value=p?.largo??"";$("espesor").value=p?.espesor??"";
+  $("unidadDim").value=p?.unidad_dimensional||"mm";$("activo").value=String(p?.activo??true);
+  const cat=CATS.includes(p?.categoria) ? p.categoria : (p?.categoria?"Otra":"Tubos");$("categoriaSelect").value=cat;$("categoriaOtra").value=cat==="Otra"?(p?.categoria||""):"";toggleOtra();
+  renderPhotoPreview(p?.id);$("productDialog").showModal();
+}
+function toggleOtra(){$("otraCatWrap").classList.toggle("hidden",$("categoriaSelect").value!=="Otra")}
+$("categoriaSelect").onchange=toggleOtra;
+$("photoInput").onchange=()=>{
+  const fs=[...$("photoInput").files];if(fs.some(f=>f.size>5*1024*1024||!["image/jpeg","image/png","image/webp"].includes(f.type))){setMsg("productFormMsg","Solo JPG/PNG/WEBP de máximo 5 MB.");return}
+  pendingFiles=fs.slice(0,3);renderPhotoPreview($("productId").value||null);
+}
+async function renderPhotoPreview(pid){
+  const current=(pid&&photosByProduct[pid])||[];const wrap=$("photoPreview");wrap.innerHTML="";
+  for(const x of current){wrap.insertAdjacentHTML("beforeend",`<div class="photo-box"><img src="${x.url}" alt=""><button type="button" class="btn small danger" data-delphoto="${x.id}" data-path="${x.storage_path}">✕</button></div>`)}
+  for(const f of pendingFiles){wrap.insertAdjacentHTML("beforeend",`<div class="photo-box"><img src="${URL.createObjectURL(f)}" alt=""></div>`)}
+  document.querySelectorAll("[data-delphoto]").forEach(b=>b.onclick=async()=>{
+    if(!confirm("¿Eliminar esta foto?"))return;
+    setBusy(b,true,"…");
+    try{
+      const {error:se}=await supabase.storage.from("producto-fotos").remove([b.dataset.path]);
+      if(se) throw se;
+      const {error:de}=await supabase.from("producto_fotos").delete().eq("id",b.dataset.delphoto);
+      if(de) throw de;
+      await refreshData();
+      await renderPhotoPreview(pid);
+      setMsg("productFormMsg","Foto eliminada correctamente.",true);
+    }catch(err){
+      setMsg("productFormMsg",err?.message||String(err));
+    }finally{setBusy(b,false)}
+  });
+}
+async function uploadPhotos(pid,files){
+  const existing=(photosByProduct[pid]||[]).length;if(existing+files.length>3)throw new Error("Máximo 3 fotos por producto.");
+  let orden=existing;
+  for(const f of files){
+    const ext=f.name.split(".").pop().toLowerCase();const path=`${pid}/${crypto.randomUUID()}.${ext}`;
+    const {error:ue}=await supabase.storage.from("producto-fotos").upload(path,f,{contentType:f.type});if(ue)throw ue;
+    const {error:ie}=await supabase.from("producto_fotos").insert({product_id:pid,storage_path:path,orden:orden++});if(ie){await supabase.storage.from("producto-fotos").remove([path]);throw ie}
+  }
+}
+$("productForm").onsubmit=async e=>{
+  e.preventDefault();
+  const submit=e.submitter || $("productForm").querySelector('button[type="submit"]');
+  setMsg("productFormMsg","");
+  setBusy(submit,true,"Guardando…");
+  try{
+    const categoria=$("categoriaSelect").value==="Otra"?$("categoriaOtra").value.trim():$("categoriaSelect").value;
+    if(!categoria) throw new Error("Debes indicar una categoría.");
+    const payload={codigo:$("codigo").value.trim().toUpperCase(),producto:$("producto").value.trim(),categoria,descripcion:$("descripcion").value.trim(),unidad:$("unidad").value,ubicacion:$("ubicacion").value.trim(),
+      stock_actual:Number($("stockActual").value||0),stock_minimo:Number($("stockMinimo").value||0),activo:$("activo").value==="true",
+      diametro_interno:numOrNull($("diametroInterno").value),diametro_externo:numOrNull($("diametroExterno").value),largo:numOrNull($("largo").value),espesor:numOrNull($("espesor").value),unidad_dimensional:$("unidadDim").value};
+    if(!payload.codigo) throw new Error("El código es obligatorio.");
+    if(!payload.producto) throw new Error("El nombre del producto es obligatorio.");
+    if(payload.stock_actual<0||payload.stock_minimo<0) throw new Error("El stock no puede ser negativo.");
+    for(const k of ["diametro_interno","diametro_externo","largo","espesor"])if(payload[k]!=null&&payload[k]<0)throw new Error("Las dimensiones no pueden ser negativas.");
+    const id=$("productId").value;let saved;
+    if(id){
+      const {codigo,stock_actual,...upd}=payload;
+      const {data,error}=await supabase.from("productos").update(upd).eq("id",id).select().single();
+      if(error)throw error;
+      saved=data;
+    }else{
+      const {data,error}=await supabase.from("productos").insert(payload).select().single();
+      if(error)throw error;
+      saved=data;
+    }
+    if(pendingFiles.length)await uploadPhotos(saved.id,pendingFiles);
+    await refreshData();
+    if(id&&currentProduct?.id===id){currentProduct=products.find(x=>x.id===id);renderDetail()}
+    setMsg("productFormMsg",id ? "Producto actualizado." : "Producto guardado.",true);
+    $("productDialog").close();
+  }catch(err){
+    const msg=err?.message||String(err);
+    console.error("Error al guardar producto",err);
+    setMsg("productFormMsg",msg.includes("duplicate key")?"Ya existe un producto con ese código.":msg);
+  }finally{
+    setBusy(submit,false);
+  }
+};
+
+function openMove(id){currentProduct=products.find(p=>p.id===id);$("moveProductLabel").textContent=`${currentProduct.codigo} · ${currentProduct.producto}`;$("moveQty").value="";$("moveObs").value="";setMsg("moveMsg","");$("moveDialog").showModal()}
+$("moveForm").onsubmit=async e=>{
+  e.preventDefault();
+  const submit=e.submitter || $("moveForm").querySelector('button[type="submit"]');
+  setMsg("moveMsg","");
+  setBusy(submit,true,"Registrando…");
+  try{
+    const tipo=$("moveType").value,cantidad=Number($("moveQty").value);
+    if(cantidad<=0)throw new Error("Ingresa una cantidad mayor a 0.");
+    const {error}=await supabase.rpc("mover_stock",{p_product_id:currentProduct.id,p_tipo:tipo,p_cantidad:cantidad,p_observacion:$("moveObs").value.trim()});
+    if(error)throw error;
+    await refreshData();
+    if(currentProduct)currentProduct=products.find(p=>p.id===currentProduct.id);
+    $("moveDialog").close();
+  }catch(err){
+    console.error("Error al registrar movimiento",err);
+    setMsg("moveMsg",err?.message||String(err));
+  }finally{setBusy(submit,false)}
+};
+async function deleteCurrent(){
+  if(!currentProduct||!confirm(`¿Eliminar "${currentProduct.producto}"? Si tiene movimientos, la base de datos bloqueará el borrado.`))return;
+  const btn=$("deleteCurrentBtn");setBusy(btn,true,"Eliminando…");
+  try{
+    const {data,error}=await supabase.rpc("eliminar_producto",{p_product_id:currentProduct.id});
+    if(error)throw error;
+    if(data?.length){
+      const {error:se}=await supabase.storage.from("producto-fotos").remove(data);
+      if(se) console.warn("El producto se eliminó, pero quedaron archivos de foto pendientes",se);
+    }
+    currentProduct=null;await refreshData();showPage("inventario");location.hash="";
+  }catch(err){
+    console.error("Error al eliminar producto",err);
+    alert(err?.message||String(err));
+  }finally{setBusy(btn,false)}
+}
+async function showQr(p){
+  const url=`${location.origin}${location.pathname}#producto/${encodeURIComponent(p.codigo)}`;$("qrLabel").textContent=`${p.codigo} · ${p.producto}`;$("qrcode").innerHTML="";const img=document.createElement("img");img.src=await QRCode.toDataURL(url,{width:260,margin:1});$("qrcode").appendChild(img);$("qrDialog").showModal();
+}
+$("printQrBtn").onclick=()=>{
+  const img=$("qrcode").querySelector("img");
+  if(!img)return;
+  const w=window.open("","_blank","width=480,height=600");
+  if(!w){alert("El navegador bloqueó la ventana de impresión.");return}
+  w.document.write(`<!doctype html><html><head><title>Etiqueta QR</title><style>body{font-family:Arial;text-align:center;padding:30px}img{width:280px;height:280px}h2{margin:12px 0 4px}p{margin:0;font-size:18px}</style></head><body><img src="${img.src}"><h2>${esc(currentProduct?.codigo||"")}</h2><p>${esc(currentProduct?.producto||"")}</p><p>${esc(currentProduct?.ubicacion||"")}</p></body></html>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),250);
+};
+$("exportBtn").onclick=()=>{
+  const btn=$("exportBtn");setBusy(btn,true,"Exportando…");
+  try{
+    const inv=products.map(p=>({Código:p.codigo,Producto:p.producto,Categoría:p.categoria,Descripción:p.descripcion,Unidad:p.unidad,Ubicación:p.ubicacion,"Stock Actual":Number(p.stock_actual),"Stock Mínimo":Number(p.stock_minimo),Estado:state(p),Activo:p.activo?"Sí":"No","Diámetro interno":p.diametro_interno,"Diámetro externo":p.diametro_externo,Largo:p.largo,Espesor:p.espesor,"Unidad dimensional":p.unidad_dimensional,"N° fotos":(photosByProduct[p.id]||[]).length}));
+    const mov=movements.map(m=>({Fecha:new Date(m.fecha_hora).toLocaleString("es-CL"),Código:m.productos?.codigo||"",Producto:m.productos?.producto||"",Tipo:m.tipo,Cantidad:Number(m.cantidad),"Stock Anterior":Number(m.stock_anterior),"Stock Posterior":Number(m.stock_posterior),Usuario:m.usuario,Observación:m.observacion}));
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(inv),"Inventario");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(mov),"Movimientos");XLSX.writeFile(wb,`inventario-planta-piloto-${new Date().toISOString().slice(0,10)}.xlsx`);
+  }catch(err){console.error(err);alert("No se pudo exportar el Excel: "+(err?.message||err))}
+  finally{setBusy(btn,false)}
+};
+$("manualGo").onclick=()=>{const c=$("manualCode").value.trim().toUpperCase();const p=products.find(x=>x.codigo===c);p?openProduct(p.id):alert("Producto no encontrado")};
+$("startScanner").onclick=async()=>{
+  const btn=$("startScanner");setBusy(btn,true,"Activando…");
+  try{
+    if(scanner){try{await scanner.stop()}catch{} try{scanner.clear()}catch{}}
+    scanner=new Html5Qrcode("qr-reader");
+    await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:240,height:240}},async txt=>{
+      const c=txt.includes("#producto/")?decodeURIComponent(txt.split("#producto/").pop()):txt.trim().toUpperCase();
+      const p=products.find(x=>x.codigo===c);
+      if(p){try{await scanner.stop()}catch{} openProduct(p.id)}
+    });
+  }catch(e){console.error(e);alert("No se pudo acceder a la cámara. Revisa los permisos del navegador.")}
+  finally{setBusy(btn,false)}
+};
+$("stopScanner").onclick=async()=>{
+  try{if(scanner){await scanner.stop();scanner.clear();scanner=null}}catch(e){console.warn(e)}
+};
+
+$("tabLogin").onclick=()=>{signupMode=false;$("tabLogin").classList.add("primary");$("tabSignup").classList.remove("primary");$("authSubmit").textContent="Ingresar";setMsg("authMsg","")};
+$("tabSignup").onclick=()=>{signupMode=true;$("tabSignup").classList.add("primary");$("tabLogin").classList.remove("primary");$("authSubmit").textContent="Registrarse";setMsg("authMsg","")};
+$("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  const submit=$("authSubmit");setMsg("authMsg","");setBusy(submit,true,signupMode?"Creando cuenta…":"Ingresando…");
+  try{
+    const email=$("authEmail").value.trim(),password=$("authPassword").value;
+    const res=signupMode?await supabase.auth.signUp({email,password}):await supabase.auth.signInWithPassword({email,password});
+    if(res.error)throw res.error;
+    if(signupMode)setMsg("authMsg","Cuenta creada. Revisa tu correo para confirmar el registro.",true);
+  }catch(err){setMsg("authMsg",err?.message||String(err))}
+  finally{setBusy(submit,false)}
+};
+$("logoutBtn").onclick=async()=>{const btn=$("logoutBtn");setBusy(btn,true,"Saliendo…");try{await supabase.auth.signOut()}finally{setBusy(btn,false)}};
+
+let appliedSessionUser=null;
+async function applySession(session){
+  if(session){
+    $("authView").classList.add("hidden");
+    $("appView").classList.remove("hidden");
+    $("userEmail").textContent=session.user.email||"";
+    try{
+      await refreshData();
+      routeHash();
+      appliedSessionUser=session.user.id;
+    }catch(e){
+      console.error("Error cargando inventario",e);
+      alert("No se pudo cargar el inventario: "+(e?.message||e));
+    }
+  }else{
+    appliedSessionUser=null;
+    products=[];movements=[];photosByProduct={};
+    $("appView").classList.add("hidden");
+    $("authView").classList.remove("hidden");
+  }
+}
+
+/* IMPORTANTE:
+   Supabase documenta que hacer awaits/API calls directamente dentro de
+   onAuthStateChange puede bloquear las siguientes llamadas. Se difiere la
+   carga fuera del callback para evitar ese deadlock. */
+supabase.auth.onAuthStateChange((_ev,session)=>{
+  setTimeout(()=>{ void applySession(session) },0);
+});
+
+function routeHash(){const h=location.hash.replace(/^#/,"");if(h.startsWith("producto/")){const code=decodeURIComponent(h.split("/")[1]||"").toUpperCase();const p=products.find(x=>x.codigo===code);if(p)openProduct(p.id);else showPage("inventario")}}
+window.addEventListener("hashchange",routeHash);
+
+window.addEventListener("unhandledrejection",e=>{console.error("Promesa no controlada",e.reason)});
+window.addEventListener("error",e=>{console.error("Error de página",e.error||e.message)});
+
+const {data:{session}}=await supabase.auth.getSession();
+await applySession(session);
+</script>
+</body>
+</html>
