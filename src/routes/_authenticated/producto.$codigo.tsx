@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { listarFotos } from "@/lib/inventario";
+import { useUrlsFotos } from "@/components/Fotos";
 import { QrCode, Pencil, ArrowLeft } from "lucide-react";
 import {
   listarMovimientosDeProducto,
@@ -48,6 +50,13 @@ function FichaProducto() {
     queryFn: () => listarMovimientosDeProducto(producto.data!.id),
     enabled: !!producto.data?.id,
   });
+
+  const fotos = useQuery({
+    queryKey: ["fotos", producto.data?.id],
+    queryFn: () => listarFotos(producto.data!.id),
+    enabled: !!producto.data?.id,
+  });
+  const urls = useUrlsFotos((fotos.data ?? []).map((f) => f.storage_path));
 
   if (producto.isLoading) return <Skeleton className="h-72 w-full" />;
 
@@ -118,6 +127,16 @@ function FichaProducto() {
               { t: "Stock mínimo", v: `${Number(p.stock_minimo)} ${p.unidad}` },
               { t: "Categoría", v: p.categoria || "—" },
               { t: "Ubicación", v: p.ubicacion || "—" },
+              ...(
+                [
+                  ["Diámetro interno", p.diametro_interno],
+                  ["Diámetro externo", p.diametro_externo],
+                  ["Largo", p.largo],
+                  ["Espesor", p.espesor],
+                ] as const
+              )
+                .filter(([, v]) => v !== null && v !== undefined)
+                .map(([t, v]) => ({ t, v: `${Number(v)} ${p.unidad_dimensional}` })),
             ].map((d) => (
               <div key={d.t} className="rounded-md border border-border p-3">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">{d.t}</p>
@@ -125,10 +144,28 @@ function FichaProducto() {
               </div>
             ))}
           </div>
+
+          {(fotos.data ?? []).length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {(fotos.data ?? []).map((f) => (
+                <a
+                  key={f.id}
+                  href={urls.data?.[f.storage_path]}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
+                >
+                  {urls.data?.[f.storage_path] && (
+                    <img src={urls.data[f.storage_path]} alt={p.producto} className="size-full object-cover" />
+                  )}
+                </a>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <Card>
+      <Card id="movimiento">
         <CardHeader>
           <CardTitle className="text-base">Registrar movimiento</CardTitle>
         </CardHeader>

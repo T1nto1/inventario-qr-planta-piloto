@@ -201,6 +201,50 @@ export type Database = {
     }
     Functions: {
       eliminar_producto: { Args: { p_product_id: string }; Returns: string[] }
+      guardar_producto: {
+        Args: {
+          p_activo: boolean
+          p_categoria: string
+          p_codigo: string
+          p_descripcion: string
+          p_diametro_externo: number
+          p_diametro_interno: number
+          p_espesor: number
+          p_id: string
+          p_largo: number
+          p_producto: string
+          p_stock_actual: number
+          p_stock_minimo: number
+          p_ubicacion: string
+          p_unidad: string
+          p_unidad_dimensional: string
+        }
+        Returns: {
+          activo: boolean
+          categoria: string
+          codigo: string
+          created_at: string
+          descripcion: string
+          diametro_externo: number | null
+          diametro_interno: number | null
+          espesor: number | null
+          id: string
+          largo: number | null
+          producto: string
+          stock_actual: number
+          stock_minimo: number
+          ubicacion: string
+          unidad: string
+          unidad_dimensional: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "productos"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
