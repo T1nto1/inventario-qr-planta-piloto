@@ -270,7 +270,7 @@ export function ProductoDialog({
             <div className="grid gap-1.5">
               <Label htmlFor="categoria">Categoría</Label>
               <Select
-                value={catOtra ? "__otra" : form.categoria || undefined}
+                value={catOtra ? "__otra" : form.categoria}
                 onValueChange={(v) => {
                   if (v === "__otra") {
                     setCatOtra(true);

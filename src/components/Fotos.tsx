@@ -10,7 +10,7 @@ export function useUrlsFotos(paths: string[]) {
   });
 }
 
-export function Miniatura({ path, alt }: { path?: string; alt: string }) {
+export function Miniatura({ path, alt }: { path?: string | undefined; alt: string }) {
   const urls = useUrlsFotos(path ? [path] : []);
   if (!path) return null;
   const src = urls.data?.[path];
