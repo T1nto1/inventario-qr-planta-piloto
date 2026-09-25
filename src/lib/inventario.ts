@@ -13,6 +13,12 @@ export interface Producto {
   activo: boolean;
   created_at: string;
   updated_at: string;
+  diametro_interno: number | null;
+  diametro_externo: number | null;
+  largo: number | null;
+  espesor: number | null;
+  unidad_dimensional: string;
+  producto_fotos?: { storage_path: string; orden: number }[];
 }
 
 export interface Movimiento {
@@ -47,7 +53,7 @@ export const etiquetaEstado: Record<Estado, string> = {
 export async function listarProductos(): Promise<Producto[]> {
   const { data, error } = await supabase
     .from("productos")
-    .select("*")
+    .select("*, producto_fotos(storage_path, orden)")
     .order("codigo", { ascending: true });
   if (error) throw new Error(error.message);
   return (data ?? []) as Producto[];
@@ -108,7 +114,7 @@ function traducirError(msg: string) {
   return msg;
 }
 
-export type ProductoInput = Omit<Producto, "id" | "created_at" | "updated_at">;
+export type ProductoInput = Omit<Producto, "id" | "created_at" | "updated_at" | "producto_fotos">;
 
 export async function crearProducto(input: ProductoInput) {
   const { data, error } = await supabase.from("productos").insert(input).select().single();
@@ -125,4 +131,74 @@ export async function actualizarProducto(id: string, input: Partial<ProductoInpu
     .single();
   if (error) throw new Error(traducirError(error.message));
   return data as Producto;
+}
+
+export const CATEGORIAS = [
+  "Tubos", "Lanzas", "Reactivos químicos", "Instrumentación", "Insumos básicos", "Crisoles",
+  "Resistencias", "Tapas de horno", "Termocuplas", "Sondas", "O-rings",
+];
+export const UNIDADES_DIM = ["mm", "cm", "m"] as const;
+export const BUCKET_FOTOS = "producto-fotos";
+export const MAX_FOTOS = 3;
+export const MAX_BYTES_FOTO = 5 * 1024 * 1024;
+export const TIPOS_FOTO = ["image/jpeg", "image/png", "image/webp"];
+
+export interface Foto {
+  id: string;
+  product_id: string;
+  storage_path: string;
+  orden: number;
+}
+
+export function validarArchivoFoto(f: File): string | null {
+  if (!TIPOS_FOTO.includes(f.type)) return `${f.name}: solo JPG, PNG o WEBP`;
+  if (f.size > MAX_BYTES_FOTO) return `${f.name}: supera 5 MB`;
+  return null;
+}
+
+export async function listarFotos(productId: string): Promise<Foto[]> {
+  const { data, error } = await supabase
+    .from("producto_fotos")
+    .select("*")
+    .eq("product_id", productId)
+    .order("orden")
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Foto[];
+}
+
+export async function urlsFirmadas(paths: string[]): Promise<Record<string, string>> {
+  if (paths.length === 0) return {};
+  const { data, error } = await supabase.storage.from(BUCKET_FOTOS).createSignedUrls(paths, 3600);
+  if (error) throw new Error(error.message);
+  const out: Record<string, string> = {};
+  for (const d of data ?? []) if (d.path && d.signedUrl) out[d.path] = d.signedUrl;
+  return out;
+}
+
+export async function subirFoto(productId: string, file: File, orden: number) {
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace("jpeg", "jpg");
+  const path = `${productId}/${crypto.randomUUID()}.${ext}`;
+  const up = await supabase.storage.from(BUCKET_FOTOS).upload(path, file, { contentType: file.type });
+  if (up.error) throw new Error(up.error.message);
+  const { error } = await supabase
+    .from("producto_fotos")
+    .insert({ product_id: productId, storage_path: path, orden });
+  if (error) {
+    await supabase.storage.from(BUCKET_FOTOS).remove([path]);
+    throw new Error(error.message.includes("Máximo") ? "Máximo 3 fotos por producto" : error.message);
+  }
+}
+
+export async function eliminarFoto(foto: Foto) {
+  const { error } = await supabase.from("producto_fotos").delete().eq("id", foto.id);
+  if (error) throw new Error(error.message);
+  await supabase.storage.from(BUCKET_FOTOS).remove([foto.storage_path]);
+}
+
+export async function eliminarProducto(productId: string) {
+  const { data, error } = await supabase.rpc("eliminar_producto", { p_product_id: productId });
+  if (error) throw new Error(error.message);
+  const paths = (data ?? []) as string[];
+  if (paths.length) await supabase.storage.from(BUCKET_FOTOS).remove(paths);
 }
