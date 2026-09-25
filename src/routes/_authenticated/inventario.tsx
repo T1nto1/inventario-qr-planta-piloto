@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, QrCode, Pencil, FileSpreadsheet, Power } from "lucide-react";
+import { Plus, Search, QrCode, Pencil, FileSpreadsheet, Power, ExternalLink, ArrowLeftRight } from "lucide-react";
+import { Miniatura } from "@/components/Fotos";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   actualizarProducto,
   listarMovimientos,
   listarProductos,
+  CATEGORIAS,
   type Producto,
 } from "@/lib/inventario";
 import { exportarExcel } from "@/lib/excel";
@@ -32,6 +35,7 @@ export const Route = createFileRoute("/_authenticated/inventario")({
 
 function Inventario() {
   const [busqueda, setBusqueda] = useState("");
+  const [categoria, setCategoria] = useState("__todas");
   const [qr, setQr] = useState<Producto | null>(null);
   const [editar, setEditar] = useState<Producto | null>(null);
   const [nuevo, setNuevo] = useState(false);
@@ -51,12 +55,19 @@ function Inventario() {
 
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
-    const lista = productos.data ?? [];
-    if (!q) return lista;
-    return lista.filter((p) =>
-      [p.codigo, p.producto, p.categoria, p.ubicacion].join(" ").toLowerCase().includes(q),
+    return (productos.data ?? []).filter(
+      (p) =>
+        (categoria === "__todas" || p.categoria === categoria) &&
+        (!q || [p.codigo, p.producto, p.categoria, p.ubicacion].join(" ").toLowerCase().includes(q)),
     );
-  }, [busqueda, productos.data]);
+  }, [busqueda, categoria, productos.data]);
+
+  const categorias = useMemo(() => {
+    const extra = (productos.data ?? [])
+      .map((p) => p.categoria)
+      .filter((c) => c && !CATEGORIAS.includes(c));
+    return [...CATEGORIAS, ...Array.from(new Set(extra)).sort()];
+  }, [productos.data]);
 
   return (
     <div className="grid gap-5">
@@ -76,6 +87,7 @@ function Inventario() {
         </div>
       </div>
 
+      <div className="grid gap-2 sm:grid-cols-[1fr_240px]">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -84,6 +96,20 @@ function Inventario() {
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
+      </div>
+        <Select value={categoria} onValueChange={setCategoria}>
+          <SelectTrigger aria-label="Filtrar por categoría">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__todas">Todas las categorías</SelectItem>
+            {categorias.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {productos.isLoading && <Skeleton className="h-64 w-full" />}
@@ -103,6 +129,10 @@ function Inventario() {
         {filtrados.map((p) => (
           <Card key={p.id} className={p.activo ? "" : "opacity-60"}>
             <CardContent className="flex flex-wrap items-center gap-3 pt-6">
+              <Miniatura
+                path={[...(p.producto_fotos ?? [])].sort((a, b) => a.orden - b.orden)[0]?.storage_path}
+                alt={p.producto}
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
@@ -135,17 +165,22 @@ function Inventario() {
                 <p className="text-xs text-muted-foreground">mín. {Number(p.stock_minimo)}</p>
               </div>
 
-              <div className="flex gap-1">
+              <div className="flex w-full flex-wrap gap-1 sm:w-auto">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/producto/$codigo" params={{ codigo: p.codigo }}>
+                    <ExternalLink className="size-4" /> Abrir
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/producto/$codigo" params={{ codigo: p.codigo }} hash="movimiento">
+                    <ArrowLeftRight className="size-4" /> Movimiento
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setEditar(p)}>
+                  <Pencil className="size-4" /> Editar
+                </Button>
                 <Button variant="outline" size="icon" title="Ver QR" onClick={() => setQr(p)}>
                   <QrCode className="size-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  title="Editar"
-                  onClick={() => setEditar(p)}
-                >
-                  <Pencil className="size-4" />
                 </Button>
                 <Button
                   variant="outline"
@@ -162,7 +197,7 @@ function Inventario() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Los productos no se eliminan: se desactivan para conservar su historial.
+        Solo se pueden eliminar productos sin movimientos; los demás se desactivan para conservar su historial.
       </p>
 
       {qr && <QrEtiqueta producto={qr} abierto={!!qr} onOpenChange={(v) => !v && setQr(null)} />}
