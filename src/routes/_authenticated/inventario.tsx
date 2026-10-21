@@ -67,12 +67,31 @@ function Inventario() {
 
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
-    return (productos.data ?? []).filter(
-      (p) =>
-        (categoria === "__todas" || p.categoria === categoria) &&
-        (!q || [p.codigo, p.producto, p.categoria, p.ubicacion].join(" ").toLowerCase().includes(q)),
-    );
-  }, [busqueda, categoria, productos.data]);
+    return (productos.data ?? []).filter((p) => {
+      if (categoria !== "__todas" && p.categoria !== categoria) return false;
+      if (
+        q &&
+        ![p.codigo, p.producto, p.categoria, p.ubicacion, p.proveedor ?? "", p.origen ?? ""]
+          .join(" ")
+          .toLowerCase()
+          .includes(q)
+      )
+        return false;
+      if (proveedor !== "__todos" && p.proveedor !== proveedor) return false;
+      if (tipoReactivo === "__sin_especificar" ? p.tipo_reactivo !== null : tipoReactivo !== "__todos" && p.tipo_reactivo !== tipoReactivo)
+        return false;
+      if (origen !== "__todos" && p.origen !== origen) return false;
+      for (const [k] of PORCENTAJES_REACTIVO) {
+        const v = p[k];
+        const { min, max } = rangos[k];
+        const minN = min === "" ? null : Number(min);
+        const maxN = max === "" ? null : Number(max);
+        if (minN !== null && !Number.isNaN(minN) && (v === null || Number(v) < minN)) return false;
+        if (maxN !== null && !Number.isNaN(maxN) && (v === null || Number(v) > maxN)) return false;
+      }
+      return true;
+    });
+  }, [busqueda, categoria, proveedor, tipoReactivo, origen, rangos, productos.data]);
 
   const categorias = useMemo(() => {
     const extra = (productos.data ?? [])
@@ -80,6 +99,22 @@ function Inventario() {
       .filter((c) => c && !CATEGORIAS.includes(c));
     return [...CATEGORIAS, ...Array.from(new Set(extra)).sort()];
   }, [productos.data]);
+
+  const proveedores = useMemo(
+    () =>
+      Array.from(
+        new Set((productos.data ?? []).map((p) => p.proveedor).filter((v): v is string => !!v)),
+      ).sort(),
+    [productos.data],
+  );
+
+  const origenes = useMemo(
+    () =>
+      Array.from(
+        new Set((productos.data ?? []).map((p) => p.origen).filter((v): v is string => !!v)),
+      ).sort(),
+    [productos.data],
+  );
 
   return (
     <div className="grid gap-5">
