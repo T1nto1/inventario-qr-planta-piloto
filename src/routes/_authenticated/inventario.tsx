@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, QrCode, Pencil, FileSpreadsheet, Power, ExternalLink, ArrowLeftRight } from "lucide-react";
+import { Plus, Search, QrCode, Pencil, FileSpreadsheet, Power, ExternalLink, ArrowLeftRight, SlidersHorizontal } from "lucide-react";
 import { Miniatura } from "@/components/Fotos";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -134,12 +134,12 @@ function Inventario() {
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-[1fr_240px]">
+      <div className="grid gap-2 sm:grid-cols-[1fr_220px_220px]">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="pl-9"
-          placeholder="Buscar por código, producto, categoría o ubicación…"
+          placeholder="Buscar por código, producto, categoría, ubicación, proveedor u origen…"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -157,6 +157,101 @@ function Inventario() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={proveedor} onValueChange={setProveedor}>
+          <SelectTrigger aria-label="Filtrar por proveedor">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__todos">Todos los proveedores</SelectItem>
+            {proveedores.map((pr) => (
+              <SelectItem key={pr} value={pr}>
+                {pr}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="rounded-md border border-border">
+        <button
+          type="button"
+          onClick={() => setAvanzados((v) => !v)}
+          className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          Filtros avanzados para Reactivos químicos
+          <SlidersHorizontal className="size-4" />
+        </button>
+        {avanzados && (
+          <div className="grid gap-3 border-t border-border p-3">
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Select value={tipoReactivo} onValueChange={setTipoReactivo}>
+                <SelectTrigger aria-label="Filtrar por tipo de reactivo">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__todos">Todos los tipos</SelectItem>
+                  {TIPOS_REACTIVO.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="__sin_especificar">Sin especificar</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={origen} onValueChange={setOrigen}>
+                <SelectTrigger aria-label="Filtrar por origen">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__todos">Todos los orígenes</SelectItem>
+                  {origenes.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {PORCENTAJES_REACTIVO.map(([k, t]) => (
+                <div key={k} className="grid gap-1">
+                  <span className="text-xs font-medium text-muted-foreground">{t} (mín–máx)</span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={100}
+                      step="any"
+                      placeholder="mín"
+                      aria-label={`${t} mínimo`}
+                      value={rangos[k].min}
+                      onChange={(e) =>
+                        setRangos({ ...rangos, [k]: { ...rangos[k], min: e.target.value } })
+                      }
+                    />
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={100}
+                      step="any"
+                      placeholder="máx"
+                      aria-label={`${t} máximo`}
+                      value={rangos[k].max}
+                      onChange={(e) =>
+                        setRangos({ ...rangos, [k]: { ...rangos[k], max: e.target.value } })
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Rangos entre 0 y 100. Los productos sin dato informado no se incluyen al filtrar por rango.
+            </p>
+          </div>
+        )}
       </div>
 
       {productos.isLoading && <Skeleton className="h-64 w-full" />}
@@ -201,6 +296,7 @@ function Inventario() {
                 </Link>
                 <p className="truncate text-xs text-muted-foreground">
                   {p.categoria} · {p.ubicacion}
+                  {p.proveedor ? ` · ${p.proveedor}` : ""}
                 </p>
               </div>
 
