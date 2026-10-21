@@ -18,8 +18,36 @@ export interface Producto {
   largo: number | null;
   espesor: number | null;
   unidad_dimensional: string;
+  proveedor: string | null;
+  tipo_reactivo: string | null;
+  origen: string | null;
+  porcentaje_cu: number | null;
+  porcentaje_fe: number | null;
+  porcentaje_sio2: number | null;
+  porcentaje_s: number | null;
   producto_fotos?: { storage_path: string; orden: number }[];
 }
+
+export const TIPOS_REACTIVO = ["Sintético", "Real"] as const;
+
+/** Detecta la categoría "Reactivos químicos" tolerando acentos, plural/singular y espacios. */
+export function esReactivo(categoria: string | null | undefined): boolean {
+  if (!categoria) return false;
+  const norm = categoria
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\s+/g, " ");
+  return /^reactivos? quimicos?$/.test(norm);
+}
+
+export const PORCENTAJES_REACTIVO = [
+  ["porcentaje_cu", "%Cu"],
+  ["porcentaje_fe", "%Fe"],
+  ["porcentaje_sio2", "%SiO₂"],
+  ["porcentaje_s", "%S"],
+] as const;
 
 export interface Movimiento {
   id: string;
