@@ -134,8 +134,7 @@ function FichaProducto() {
                 ? [
                     ...(p.tipo_reactivo ? [{ t: "Tipo de reactivo", v: p.tipo_reactivo }] : []),
                     ...(p.origen ? [{ t: "Origen", v: p.origen }] : []),
-                    ...PORCENTAJES_REACTIVO.filter(([, ,]) => true)
-                      .map(([k, t]) => ({ t, v: p[k] }))
+                    ...PORCENTAJES_REACTIVO.map(([k, t]) => ({ t, v: p[k] }))
                       .filter((d) => d.v !== null && d.v !== undefined)
                       .map((d) => ({ t: d.t, v: `${Number(d.v)} %` })),
                   ]
