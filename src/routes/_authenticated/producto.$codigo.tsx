@@ -7,6 +7,8 @@ import { QrCode, Pencil, ArrowLeft } from "lucide-react";
 import {
   listarMovimientosDeProducto,
   obtenerProductoPorCodigo,
+  esReactivo,
+  PORCENTAJES_REACTIVO,
   type Producto,
 } from "@/lib/inventario";
 import { EstadoBadge } from "@/components/EstadoBadge";
@@ -127,6 +129,16 @@ function FichaProducto() {
               { t: "Stock mínimo", v: `${Number(p.stock_minimo)} ${p.unidad}` },
               { t: "Categoría", v: p.categoria || "—" },
               { t: "Ubicación", v: p.ubicacion || "—" },
+              ...(p.proveedor ? [{ t: "Proveedor", v: p.proveedor }] : []),
+              ...(esReactivo(p.categoria)
+                ? [
+                    ...(p.tipo_reactivo ? [{ t: "Tipo de reactivo", v: p.tipo_reactivo }] : []),
+                    ...(p.origen ? [{ t: "Origen", v: p.origen }] : []),
+                    ...PORCENTAJES_REACTIVO.map(([k, t]) => ({ t, v: p[k] }))
+                      .filter((d) => d.v !== null && d.v !== undefined)
+                      .map((d) => ({ t: d.t, v: `${Number(d.v)} %` })),
+                  ]
+                : []),
               ...(
                 [
                   ["Diámetro interno", p.diametro_interno],

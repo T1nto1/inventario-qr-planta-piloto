@@ -20,6 +20,13 @@ export function exportarExcel(productos: Producto[], movimientos: MovConProducto
     Largo: p.largo ?? "",
     Espesor: p.espesor ?? "",
     "Unidad dimensional": p.unidad_dimensional ?? "",
+    Proveedor: p.proveedor ?? "",
+    "Tipo de reactivo": p.tipo_reactivo ?? "",
+    Origen: p.origen ?? "",
+    "%Cu": p.porcentaje_cu ?? "",
+    "%Fe": p.porcentaje_fe ?? "",
+    "%SiO₂": p.porcentaje_sio2 ?? "",
+    "%S": p.porcentaje_s ?? "",
     "N° fotos": p.producto_fotos?.length ?? 0,
   }));
 
@@ -38,7 +45,7 @@ export function exportarExcel(productos: Producto[], movimientos: MovConProducto
   const wb = XLSX.utils.book_new();
   const hoja1 = XLSX.utils.json_to_sheet(inventario);
   const hoja2 = XLSX.utils.json_to_sheet(movs);
-  hoja1["!cols"] = [12, 30, 22, 34, 8, 26, 12, 12, 14, 8, 14, 14, 10, 10, 12, 9].map((w) => ({ wch: w }));
+  hoja1["!cols"] = [12, 30, 22, 34, 8, 26, 12, 12, 14, 8, 14, 14, 10, 10, 12, 24, 14, 20, 8, 8, 8, 8, 9].map((w) => ({ wch: w }));
   hoja2["!cols"] = [20, 12, 30, 10, 10, 14, 14, 26, 34].map((w) => ({ wch: w }));
   XLSX.utils.book_append_sheet(wb, hoja1, "Inventario");
   XLSX.utils.book_append_sheet(wb, hoja2, "Movimientos");
