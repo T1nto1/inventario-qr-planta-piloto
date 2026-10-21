@@ -10,6 +10,8 @@ import {
   listarMovimientos,
   listarProductos,
   CATEGORIAS,
+  TIPOS_REACTIVO,
+  PORCENTAJES_REACTIVO,
   type Producto,
 } from "@/lib/inventario";
 import { exportarExcel } from "@/lib/excel";
@@ -36,6 +38,16 @@ export const Route = createFileRoute("/_authenticated/inventario")({
 function Inventario() {
   const [busqueda, setBusqueda] = useState("");
   const [categoria, setCategoria] = useState("__todas");
+  const [proveedor, setProveedor] = useState("__todos");
+  const [tipoReactivo, setTipoReactivo] = useState("__todos");
+  const [origen, setOrigen] = useState("__todos");
+  const [avanzados, setAvanzados] = useState(false);
+  const [rangos, setRangos] = useState<Record<string, { min: string; max: string }>>({
+    porcentaje_cu: { min: "", max: "" },
+    porcentaje_fe: { min: "", max: "" },
+    porcentaje_sio2: { min: "", max: "" },
+    porcentaje_s: { min: "", max: "" },
+  });
   const [qr, setQr] = useState<Producto | null>(null);
   const [editar, setEditar] = useState<Producto | null>(null);
   const [nuevo, setNuevo] = useState(false);
