@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -64,6 +64,69 @@ export type Database = {
           },
         ]
       }
+      movimientos_archivados: {
+        Row: {
+          archive_id: string
+          archived_at: string
+          archived_by: string | null
+          cantidad: number
+          cantidad_firmada: number
+          fecha_hora: string
+          motivo: string
+          observacion: string | null
+          original_movement_id: string
+          product_id: string | null
+          producto_categoria: string | null
+          producto_codigo: string | null
+          producto_nombre: string | null
+          stock_anterior: number
+          stock_posterior: number
+          tipo: string
+          user_id: string | null
+          usuario: string | null
+        }
+        Insert: {
+          archive_id?: string
+          archived_at?: string
+          archived_by?: string | null
+          cantidad: number
+          cantidad_firmada: number
+          fecha_hora: string
+          motivo?: string
+          observacion?: string | null
+          original_movement_id: string
+          product_id?: string | null
+          producto_categoria?: string | null
+          producto_codigo?: string | null
+          producto_nombre?: string | null
+          stock_anterior: number
+          stock_posterior: number
+          tipo: string
+          user_id?: string | null
+          usuario?: string | null
+        }
+        Update: {
+          archive_id?: string
+          archived_at?: string
+          archived_by?: string | null
+          cantidad?: number
+          cantidad_firmada?: number
+          fecha_hora?: string
+          motivo?: string
+          observacion?: string | null
+          original_movement_id?: string
+          product_id?: string | null
+          producto_categoria?: string | null
+          producto_codigo?: string | null
+          producto_nombre?: string | null
+          stock_anterior?: number
+          stock_posterior?: number
+          tipo?: string
+          user_id?: string | null
+          usuario?: string | null
+        }
+        Relationships: []
+      }
       producto_fotos: {
         Row: {
           created_at: string
@@ -108,9 +171,16 @@ export type Database = {
           espesor: number | null
           id: string
           largo: number | null
+          origen: string | null
+          porcentaje_cu: number | null
+          porcentaje_fe: number | null
+          porcentaje_s: number | null
+          porcentaje_sio2: number | null
           producto: string
+          proveedor: string | null
           stock_actual: number
           stock_minimo: number
+          tipo_reactivo: string | null
           ubicacion: string
           unidad: string
           unidad_dimensional: string
@@ -127,9 +197,16 @@ export type Database = {
           espesor?: number | null
           id?: string
           largo?: number | null
+          origen?: string | null
+          porcentaje_cu?: number | null
+          porcentaje_fe?: number | null
+          porcentaje_s?: number | null
+          porcentaje_sio2?: number | null
           producto: string
+          proveedor?: string | null
           stock_actual?: number
           stock_minimo?: number
+          tipo_reactivo?: string | null
           ubicacion?: string
           unidad?: string
           unidad_dimensional?: string
@@ -146,9 +223,16 @@ export type Database = {
           espesor?: number | null
           id?: string
           largo?: number | null
+          origen?: string | null
+          porcentaje_cu?: number | null
+          porcentaje_fe?: number | null
+          porcentaje_s?: number | null
+          porcentaje_sio2?: number | null
           producto?: string
+          proveedor?: string | null
           stock_actual?: number
           stock_minimo?: number
+          tipo_reactivo?: string | null
           ubicacion?: string
           unidad?: string
           unidad_dimensional?: string
@@ -170,6 +254,27 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      reinicios_historial: {
+        Row: {
+          created_at: string
+          created_by: string
+          created_by_email: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          created_by_email?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          created_by_email?: string | null
           id?: string
         }
         Relationships: []
@@ -230,9 +335,16 @@ export type Database = {
           espesor: number | null
           id: string
           largo: number | null
+          origen: string | null
+          porcentaje_cu: number | null
+          porcentaje_fe: number | null
+          porcentaje_s: number | null
+          porcentaje_sio2: number | null
           producto: string
+          proveedor: string | null
           stock_actual: number
           stock_minimo: number
+          tipo_reactivo: string | null
           ubicacion: string
           unidad: string
           unidad_dimensional: string
@@ -278,6 +390,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      reiniciar_historial_movimientos: {
+        Args: never
+        Returns: {
+          created_at: string
+          created_by_email: string
+          id: string
+        }[]
       }
     }
     Enums: {
