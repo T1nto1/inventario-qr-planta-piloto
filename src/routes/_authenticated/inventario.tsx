@@ -42,7 +42,9 @@ function Inventario() {
   const [tipoReactivo, setTipoReactivo] = useState("__todos");
   const [origen, setOrigen] = useState("__todos");
   const [avanzados, setAvanzados] = useState(false);
-  const [rangos, setRangos] = useState<Record<string, { min: string; max: string }>>({
+  const [rangos, setRangos] = useState<
+    Record<(typeof PORCENTAJES_REACTIVO)[number][0], { min: string; max: string }>
+  >({
     porcentaje_cu: { min: "", max: "" },
     porcentaje_fe: { min: "", max: "" },
     porcentaje_sio2: { min: "", max: "" },
