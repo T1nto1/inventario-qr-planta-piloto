@@ -348,6 +348,18 @@ export function ProductoDialog({
             />
           </div>
 
+          <div className="grid gap-1.5">
+            <Label htmlFor="proveedor">Proveedor (opcional)</Label>
+            <Input
+              id="proveedor"
+              value={form.proveedor ?? ""}
+              onChange={(e) =>
+                setForm({ ...form, proveedor: e.target.value.trim() === "" ? null : e.target.value })
+              }
+              placeholder="Nombre del proveedor"
+            />
+          </div>
+
           <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="stock_actual">Stock inicial</Label>
@@ -422,6 +434,75 @@ export function ProductoDialog({
               </Select>
             </div>
           </fieldset>
+
+          {esReactivo(form.categoria) && (
+            <fieldset className="grid gap-3 rounded-md border border-border p-3">
+              <legend className="px-1 text-sm font-medium">
+                Características del reactivo (opcionales)
+              </legend>
+              <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="tipo_reactivo" className="text-xs">
+                    Tipo
+                  </Label>
+                  <Select
+                    value={form.tipo_reactivo ?? "__sin_especificar"}
+                    onValueChange={(v) =>
+                      setForm({ ...form, tipo_reactivo: v === "__sin_especificar" ? null : v })
+                    }
+                  >
+                    <SelectTrigger id="tipo_reactivo">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__sin_especificar">Sin especificar</SelectItem>
+                      {TIPOS_REACTIVO.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="origen" className="text-xs">
+                    Origen (opcional)
+                  </Label>
+                  <Input
+                    id="origen"
+                    value={form.origen ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, origen: e.target.value.trim() === "" ? null : e.target.value })
+                    }
+                    placeholder="Procedencia, país o yacimiento"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {PORCENTAJES_REACTIVO.map(([k, t]) => (
+                  <div key={k} className="grid gap-1.5">
+                    <Label htmlFor={k} className="text-xs">
+                      {t}
+                    </Label>
+                    <Input
+                      id={k}
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={100}
+                      step="any"
+                      value={form[k] ?? ""}
+                      onChange={(e) => setPorc(k, e.target.value)}
+                    />
+                    {errores[k] && <p className="text-xs text-destructive">{errores[k]}</p>}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Porcentajes en masa (si corresponde), entre 0 y 100. No es necesario que sumen 100.
+              </p>
+            </fieldset>
+          )}
 
           <fieldset className="grid gap-3 rounded-md border border-border p-3">
             <legend className="px-1 text-sm font-medium">Fotos (opcionales, máx. 3)</legend>
