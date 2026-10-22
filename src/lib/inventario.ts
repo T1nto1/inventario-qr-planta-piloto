@@ -21,6 +21,7 @@ export interface Producto {
   proveedor: string | null;
   tipo_reactivo: string | null;
   origen: string | null;
+  campana: string | null;
   porcentaje_cu: number | null;
   porcentaje_fe: number | null;
   porcentaje_sio2: number | null;

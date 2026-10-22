@@ -62,6 +62,7 @@ const VACIO: ProductoInput = {
   proveedor: null,
   tipo_reactivo: null,
   origen: null,
+  campana: null,
   porcentaje_cu: null,
   porcentaje_fe: null,
   porcentaje_sio2: null,
@@ -129,6 +130,7 @@ export function ProductoDialog({
             proveedor: producto.proveedor,
             tipo_reactivo: producto.tipo_reactivo,
             origen: producto.origen,
+            campana: producto.campana ?? null,
             porcentaje_cu: producto.porcentaje_cu,
             porcentaje_fe: producto.porcentaje_fe,
             porcentaje_sio2: producto.porcentaje_sio2,
@@ -348,17 +350,6 @@ export function ProductoDialog({
             />
           </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="proveedor">Proveedor (opcional)</Label>
-            <Input
-              id="proveedor"
-              value={form.proveedor ?? ""}
-              onChange={(e) =>
-                setForm({ ...form, proveedor: e.target.value.trim() === "" ? null : e.target.value })
-              }
-              placeholder="Nombre del proveedor"
-            />
-          </div>
 
           <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
             <div className="grid gap-1.5">
@@ -435,12 +426,33 @@ export function ProductoDialog({
             </div>
           </fieldset>
 
-          {esReactivo(form.categoria) && (
             <fieldset className="grid gap-3 rounded-md border border-border p-3">
               <legend className="px-1 text-sm font-medium">
-                Características del reactivo (opcionales)
+                Información adicional (opcional)
               </legend>
               <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="proveedor" className="text-xs">Proveedor (opcional)</Label>
+                  <Input
+                    id="proveedor"
+                    value={form.proveedor ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, proveedor: e.target.value.trim() === "" ? null : e.target.value })
+                    }
+                    placeholder="Nombre del proveedor"
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="campana" className="text-xs">Campaña (opcional)</Label>
+                  <Input
+                    id="campana"
+                    value={form.campana ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, campana: e.target.value.trim() === "" ? null : e.target.value })
+                    }
+                    placeholder="Nombre o código de campaña"
+                  />
+                </div>
                 <div className="grid gap-1.5">
                   <Label htmlFor="tipo_reactivo" className="text-xs">
                     Tipo
@@ -502,7 +514,7 @@ export function ProductoDialog({
                 Porcentajes en masa (si corresponde), entre 0 y 100. No es necesario que sumen 100.
               </p>
             </fieldset>
-          )}
+
 
           <fieldset className="grid gap-3 rounded-md border border-border p-3">
             <legend className="px-1 text-sm font-medium">Fotos (opcionales, máx. 3)</legend>
