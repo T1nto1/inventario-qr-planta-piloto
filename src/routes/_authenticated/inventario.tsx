@@ -39,6 +39,7 @@ function Inventario() {
   const [busqueda, setBusqueda] = useState("");
   const [categoria, setCategoria] = useState("__todas");
   const [proveedor, setProveedor] = useState("__todos");
+  const [campana, setCampana] = useState("__todas");
   const [tipoReactivo, setTipoReactivo] = useState("__todos");
   const [origen, setOrigen] = useState("__todos");
   const [avanzados, setAvanzados] = useState(false);
@@ -73,13 +74,14 @@ function Inventario() {
       if (categoria !== "__todas" && p.categoria !== categoria) return false;
       if (
         q &&
-        ![p.codigo, p.producto, p.categoria, p.ubicacion, p.proveedor ?? "", p.origen ?? ""]
+        ![p.codigo, p.producto, p.categoria, p.ubicacion, p.proveedor ?? "", p.origen ?? "", p.campana ?? ""]
           .join(" ")
           .toLowerCase()
           .includes(q)
       )
         return false;
       if (proveedor !== "__todos" && p.proveedor !== proveedor) return false;
+      if (campana !== "__todas" && p.campana !== campana) return false;
       if (tipoReactivo === "__sin_especificar" ? p.tipo_reactivo !== null : tipoReactivo !== "__todos" && p.tipo_reactivo !== tipoReactivo)
         return false;
       if (origen !== "__todos" && p.origen !== origen) return false;
@@ -93,7 +95,7 @@ function Inventario() {
       }
       return true;
     });
-  }, [busqueda, categoria, proveedor, tipoReactivo, origen, rangos, productos.data]);
+  }, [busqueda, categoria, proveedor, campana, tipoReactivo, origen, rangos, productos.data]);
 
   const categorias = useMemo(() => {
     const extra = (productos.data ?? [])
@@ -118,6 +120,14 @@ function Inventario() {
     [productos.data],
   );
 
+  const campanas = useMemo(
+    () =>
+      Array.from(
+        new Set((productos.data ?? []).map((p) => p.campana).filter((v): v is string => !!v)),
+      ).sort((a, b) => a.localeCompare(b, "es")),
+    [productos.data],
+  );
+
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -136,7 +146,7 @@ function Inventario() {
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-[1fr_220px_220px]">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_200px_200px_200px]">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -172,6 +182,19 @@ function Inventario() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={campana} onValueChange={setCampana}>
+          <SelectTrigger aria-label="Filtrar por campaña">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__todas">Todas las campañas</SelectItem>
+            {campanas.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-md border border-border">
@@ -180,7 +203,7 @@ function Inventario() {
           onClick={() => setAvanzados((v) => !v)}
           className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
-          Filtros avanzados para Reactivos químicos
+          Filtros avanzados
           <SlidersHorizontal className="size-4" />
         </button>
         {avanzados && (
@@ -299,6 +322,7 @@ function Inventario() {
                 <p className="truncate text-xs text-muted-foreground">
                   {p.categoria} · {p.ubicacion}
                   {p.proveedor ? ` · ${p.proveedor}` : ""}
+                  {p.campana ? ` · Campaña: ${p.campana}` : ""}
                 </p>
               </div>
 
