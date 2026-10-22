@@ -40,7 +40,7 @@
 <body>
 <div id="authView" class="auth">
   <div class="auth-card">
-    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v4.2</small></div></div>
+    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v5.0</small></div></div>
     <p class="muted">Inventario compartido en la nube.</p>
     <div class="tabs"><button id="tabLogin" class="btn primary">Ingresar</button><button id="tabSignup" class="btn">Registrarse</button></div>
     <form id="authForm" class="grid">
@@ -55,7 +55,7 @@
 <div id="appView" class="app hidden">
 <header>
   <div class="topbar">
-    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v4.2</small></div></div>
+    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v5.0</small></div></div>
     <nav>
       <button class="nav-btn active" data-page="dashboard">Dashboard</button>
       <button class="nav-btn" data-page="inventario">Inventario</button>
@@ -81,7 +81,17 @@
       <div><h2>Inventario</h2><p class="muted">Busca, filtra y administra productos.</p></div>
       <div class="actions"><button id="exportBtn" class="btn">Exportar a Excel</button><button id="newProductBtn" class="btn primary">+ Nuevo producto</button></div>
     </div>
-    <div class="search-row"><input id="searchInput" placeholder="Buscar código, producto, categoría o ubicación…"><select id="categoryFilter"></select></div>
+    <div class="search-row"><input id="searchInput" placeholder="Buscar código, producto, categoría, ubicación, proveedor, campaña u origen…"><select id="categoryFilter"></select></div>
+    <div class="search-row" style="grid-template-columns:1fr 1fr"><select id="campanaFilter"></select><select id="proveedorFilter"></select></div>
+    <details class="card" style="margin-bottom:14px"><summary style="cursor:pointer;font-weight:600">Filtros avanzados</summary>
+      <div class="form-grid" style="margin-top:10px">
+        <div class="field"><label>Origen</label><select id="origenFilter"></select></div>
+        <div class="field"><label>Tipo</label><select id="tipoFilter"><option value="">Todos los tipos</option><option value="Sintético">Sintético</option><option value="Real">Real</option><option value="__null">Sin especificar</option></select></div>
+        <div class="field"><label>%Cu mín / máx</label><div style="display:flex;gap:6px"><input id="minCu" type="number" min="0" max="100" step="any" placeholder="mín"><input id="maxCu" type="number" min="0" max="100" step="any" placeholder="máx"></div></div>
+        <div class="field"><label>%Fe mín / máx</label><div style="display:flex;gap:6px"><input id="minFe" type="number" min="0" max="100" step="any" placeholder="mín"><input id="maxFe" type="number" min="0" max="100" step="any" placeholder="máx"></div></div>
+        <div class="field"><label>%SiO₂ mín / máx</label><div style="display:flex;gap:6px"><input id="minSio2" type="number" min="0" max="100" step="any" placeholder="mín"><input id="maxSio2" type="number" min="0" max="100" step="any" placeholder="máx"></div></div>
+        <div class="field"><label>%S mín / máx</label><div style="display:flex;gap:6px"><input id="minS" type="number" min="0" max="100" step="any" placeholder="mín"><input id="maxS" type="number" min="0" max="100" step="any" placeholder="máx"></div></div>
+      </div><p class="muted" style="font-size:12px">Los productos sin dato no se incluyen al filtrar por rango.</p></details>
     <div id="productList" class="product-list"></div>
   </section>
 
@@ -115,6 +125,15 @@
     <div class="field span2"><label>Descripción</label><textarea id="descripcion" rows="2"></textarea></div>
     <div class="field"><label>Stock inicial</label><input id="stockActual" type="number" min="0" step="any"></div>
     <div class="field"><label>Stock mínimo</label><input id="stockMinimo" type="number" min="0" step="any"></div>
+    <div class="span2 section-title">Información adicional (opcional)</div>
+    <div class="field"><label for="proveedor">Proveedor (opcional)</label><input id="proveedor"></div>
+    <div class="field"><label for="campana">Campaña (opcional)</label><input id="campana"></div>
+    <div class="field"><label for="origen">Origen (opcional)</label><input id="origen" placeholder="Procedencia, país o yacimiento"></div>
+    <div class="field"><label for="tipoReactivo">Tipo</label><select id="tipoReactivo"><option value="">Sin especificar</option><option value="Sintético">Sintético</option><option value="Real">Real</option></select></div>
+    <div class="field"><label for="pctCu">%Cu</label><input id="pctCu" type="number" min="0" max="100" step="any"></div>
+    <div class="field"><label for="pctFe">%Fe</label><input id="pctFe" type="number" min="0" max="100" step="any"></div>
+    <div class="field"><label for="pctSio2">%SiO₂</label><input id="pctSio2" type="number" min="0" max="100" step="any"></div>
+    <div class="field"><label for="pctS">%S</label><input id="pctS" type="number" min="0" max="100" step="any"></div>
     <div class="span2 section-title">Dimensiones (opcionales)</div>
     <div class="field"><label>Diámetro interno</label><input id="diametroInterno" type="number" min="0" step="any"></div>
     <div class="field"><label>Diámetro externo</label><input id="diametroExterno" type="number" min="0" step="any"></div>
@@ -270,7 +289,11 @@ async function refreshData(){
   }
   renderAll();
 }
-function renderAll(){updateCategoryFilter();renderDashboard();renderProducts();renderMoves();if(currentProduct){currentProduct=products.find(p=>p.id===currentProduct.id)||null;if(currentProduct)renderDetail()}}
+const PCTS=[["porcentaje_cu","%Cu","Cu"],["porcentaje_fe","%Fe","Fe"],["porcentaje_sio2","%SiO₂","Sio2"],["porcentaje_s","%S","S"]];
+function fillDynFilter(id,key,todos){const sel=$(id),cur=sel.value;const vals=[...new Set(products.map(p=>p[key]).filter(v=>v!=null&&String(v).trim()!==""))].sort((a,b)=>String(a).localeCompare(String(b),"es"));
+  sel.innerHTML=`<option value="">${todos}</option>`+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");sel.value=vals.includes(cur)?cur:""}
+function updateExtraFilters(){fillDynFilter("campanaFilter","campana","Todas las campañas");fillDynFilter("proveedorFilter","proveedor","Todos los proveedores");fillDynFilter("origenFilter","origen","Todos los orígenes")}
+function renderAll(){updateCategoryFilter();updateExtraFilters();renderDashboard();renderProducts();renderMoves();if(currentProduct){currentProduct=products.find(p=>p.id===currentProduct.id)||null;if(currentProduct)renderDetail()}}
 function renderDashboard(){
   $("kpiTotal").textContent=products.length;
   $("kpiLow").textContent=products.filter(p=>Number(p.stock_actual)>0&&Number(p.stock_actual)<=Number(p.stock_minimo)).length;
@@ -279,13 +302,18 @@ function renderDashboard(){
 }
 function renderProducts(){
   const q=$("searchInput").value.trim().toLowerCase(), cat=$("categoryFilter").value;
-  const list=products.filter(p=>(!cat||p.categoria===cat)&&(!q||[p.codigo,p.producto,p.categoria,p.ubicacion].join(" ").toLowerCase().includes(q)));
+  const camp=$("campanaFilter").value, prov=$("proveedorFilter").value, ori=$("origenFilter").value, tipo=$("tipoFilter").value;
+  const rng=PCTS.map(([k,,sfx])=>[k,numOrNull($("min"+sfx).value),numOrNull($("max"+sfx).value)]);
+  const list=products.filter(p=>(!cat||p.categoria===cat)&&(!camp||p.campana===camp)&&(!prov||p.proveedor===prov)&&(!ori||p.origen===ori)
+    &&(!tipo||(tipo==="__null"?p.tipo_reactivo==null:p.tipo_reactivo===tipo))
+    &&rng.every(([k,mn,mx])=>{const v=p[k];if(mn==null&&mx==null)return true;if(v==null)return false;const n=Number(v);return (mn==null||n>=mn)&&(mx==null||n<=mx)})
+    &&(!q||[p.codigo,p.producto,p.categoria,p.ubicacion,p.proveedor,p.campana,p.origen].map(x=>x??"").join(" ").toLowerCase().includes(q)));
   $("productList").innerHTML=list.length?list.map(p=>{
     const s=state(p), ph=(photosByProduct[p.id]||[])[0]?.url;
     return `<div class="card product" style="${p.activo?"":"opacity:.6"}">
       ${ph?`<img class="thumb" src="${ph}" alt="">`:`<div class="thumb" style="display:grid;place-items:center;color:var(--muted)">QR</div>`}
       <div><div class="chips"><span class="chip">${esc(p.codigo)}</span><span class="chip ${stateClass(s)}">${s}</span>${p.activo?"":"<span class='chip'>Inactivo</span>"}</div>
-      <div class="product-title">${esc(p.producto)}</div><div class="muted">${esc(p.categoria||"")} · ${esc(p.ubicacion||"")}</div></div>
+      <div class="product-title">${esc(p.producto)}</div><div class="muted">${esc(p.categoria||"")} · ${esc(p.ubicacion||"")}${p.proveedor?" · "+esc(p.proveedor):""}${p.campana?" · Campaña: "+esc(p.campana):""}</div></div>
       <div class="stock"><strong>${Number(p.stock_actual)} ${esc(p.unidad)}</strong><span class="muted">mín. ${Number(p.stock_minimo)}</span></div>
       <div class="row-actions"><button class="btn small" data-open="${p.id}">Abrir</button><button class="btn small" data-move="${p.id}">Movimiento</button><button class="btn small" data-edit="${p.id}">Editar</button></div>
     </div>`}).join(""):`<div class="card muted">No se encontraron productos.</div>`;
@@ -302,6 +330,8 @@ function showPage(name){
 }
 document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
 $("searchInput").oninput=renderProducts;$("categoryFilter").onchange=renderProducts;
+["campanaFilter","proveedorFilter","origenFilter","tipoFilter"].forEach(i=>$(i).onchange=renderProducts);
+["Cu","Fe","Sio2","S"].forEach(x=>{$("min"+x).oninput=renderProducts;$("max"+x).oninput=renderProducts});
 $("newProductBtn").onclick=()=>openProductDialog(null);
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());
 
@@ -310,6 +340,7 @@ function openProduct(id){
   renderDetail();showPage("producto");location.hash=`producto/${encodeURIComponent(currentProduct.codigo)}`;
 }
 function dimRow(label,v,u){return v==null?"":`<div class="mini"><div class="t">${label}</div><div class="v">${Number(v)} ${esc(u)}</div></div>`}
+function txtRow(t,v){return v!=null&&String(v).trim()!==""?`<div class="mini"><div class="t">${t}</div><div class="v">${esc(v)}</div></div>`:""}
 function renderDetail(){
   const p=currentProduct, s=state(p), pics=photosByProduct[p.id]||[];
   $("productDetail").innerHTML=`<div class="grid">
@@ -320,6 +351,8 @@ function renderDetail(){
       <div class="mini"><div class="t">Stock mínimo</div><div class="v">${Number(p.stock_minimo)} ${esc(p.unidad)}</div></div>
       <div class="mini"><div class="t">Categoría</div><div class="v">${esc(p.categoria||"—")}</div></div>
       <div class="mini"><div class="t">Ubicación</div><div class="v">${esc(p.ubicacion||"—")}</div></div>
+      ${txtRow("Proveedor",p.proveedor)}${txtRow("Campaña",p.campana)}${txtRow("Origen",p.origen)}${txtRow("Tipo",p.tipo_reactivo)}
+      ${PCTS.map(([k,t])=>p[k]!=null&&p[k]!==""?`<div class="mini"><div class="t">${t}</div><div class="v">${Number(p[k])} %</div></div>`:"").join("")}
       ${dimRow("Diámetro interno",p.diametro_interno,p.unidad_dimensional)}
       ${dimRow("Diámetro externo",p.diametro_externo,p.unidad_dimensional)}
       ${dimRow("Largo",p.largo,p.unidad_dimensional)}
@@ -342,7 +375,9 @@ function openProductDialog(p){
   $("producto").value=p?.producto||"";$("unidad").value=p?.unidad||"un";$("ubicacion").value=p?.ubicacion||"";$("descripcion").value=p?.descripcion||"";
   $("stockActual").value=p?Number(p.stock_actual):0;$("stockActual").disabled=!!p;$("stockMinimo").value=p?Number(p.stock_minimo):0;
   $("diametroInterno").value=p?.diametro_interno??"";$("diametroExterno").value=p?.diametro_externo??"";$("largo").value=p?.largo??"";$("espesor").value=p?.espesor??"";
-  $("unidadDim").value=p?.unidad_dimensional||"mm";$("activo").value=String(p?.activo??true);
+  $("unidadDim").value=p?.unidad_dimensional||"mm";
+  $("proveedor").value=p?.proveedor??"";$("campana").value=p?.campana??"";$("origen").value=p?.origen??"";$("tipoReactivo").value=p?.tipo_reactivo??"";
+  $("pctCu").value=p?.porcentaje_cu??"";$("pctFe").value=p?.porcentaje_fe??"";$("pctSio2").value=p?.porcentaje_sio2??"";$("pctS").value=p?.porcentaje_s??"";$("activo").value=String(p?.activo??true);
   const cat=CATS.includes(p?.categoria) ? p.categoria : (p?.categoria?"Otra":"Tubos");$("categoriaSelect").value=cat;$("categoriaOtra").value=cat==="Otra"?(p?.categoria||""):"";toggleOtra();
   renderPhotoPreview(p?.id);$("productDialog").showModal();
 }
@@ -399,6 +434,7 @@ async function uploadPhotos(pid,files){
     }
   }
 }
+function txtOrNull(v){v=String(v??"").trim();return v===""?null:v}
 $("productForm").onsubmit=async e=>{
   e.preventDefault();
   const submit=e.submitter || $("productForm").querySelector('button[type="submit"]');
@@ -409,30 +445,21 @@ $("productForm").onsubmit=async e=>{
     if(!categoria) throw new Error("Debes indicar una categoría.");
     const payload={codigo:$("codigo").value.trim().toUpperCase(),producto:$("producto").value.trim(),categoria,descripcion:$("descripcion").value.trim(),unidad:$("unidad").value,ubicacion:$("ubicacion").value.trim(),
       stock_actual:Number($("stockActual").value||0),stock_minimo:Number($("stockMinimo").value||0),activo:$("activo").value==="true",
-      diametro_interno:numOrNull($("diametroInterno").value),diametro_externo:numOrNull($("diametroExterno").value),largo:numOrNull($("largo").value),espesor:numOrNull($("espesor").value),unidad_dimensional:$("unidadDim").value};
+      diametro_interno:numOrNull($("diametroInterno").value),diametro_externo:numOrNull($("diametroExterno").value),largo:numOrNull($("largo").value),espesor:numOrNull($("espesor").value),unidad_dimensional:$("unidadDim").value,
+      proveedor:txtOrNull($("proveedor").value),campana:txtOrNull($("campana").value),origen:txtOrNull($("origen").value),tipo_reactivo:$("tipoReactivo").value||null,
+      porcentaje_cu:numOrNull($("pctCu").value),porcentaje_fe:numOrNull($("pctFe").value),porcentaje_sio2:numOrNull($("pctSio2").value),porcentaje_s:numOrNull($("pctS").value)};
+    for(const [k,t] of PCTS)if(payload[k]!=null&&(Number.isNaN(payload[k])||payload[k]<0||payload[k]>100))throw new Error(`${t} debe estar entre 0 y 100.`);
     if(!payload.codigo) throw new Error("El código es obligatorio.");
     if(!payload.producto) throw new Error("El nombre del producto es obligatorio.");
     if(payload.stock_actual<0||payload.stock_minimo<0) throw new Error("El stock no puede ser negativo.");
     for(const k of ["diametro_interno","diametro_externo","largo","espesor"])if(payload[k]!=null&&payload[k]<0)throw new Error("Las dimensiones no pueden ser negativas.");
     const id=$("productId").value;let saved;
-    const rpcResult=await restRpc("guardar_producto",{
-      p_id:id||null,
-      p_codigo:payload.codigo,
-      p_producto:payload.producto,
-      p_categoria:payload.categoria,
-      p_descripcion:payload.descripcion,
-      p_unidad:payload.unidad,
-      p_ubicacion:payload.ubicacion,
-      p_stock_actual:payload.stock_actual,
-      p_stock_minimo:payload.stock_minimo,
-      p_activo:payload.activo,
-      p_diametro_interno:payload.diametro_interno,
-      p_diametro_externo:payload.diametro_externo,
-      p_largo:payload.largo,
-      p_espesor:payload.espesor,
-      p_unidad_dimensional:payload.unidad_dimensional
-    });
-    saved=Array.isArray(rpcResult)?rpcResult[0]:rpcResult;
+    if(id){
+      const {codigo,stock_actual,...upd}=payload;
+      saved=await restUpdateProduct(id,upd);
+    }else{
+      saved=await restInsertProduct(payload);
+    }
     if(!saved?.id)throw new Error("La base de datos no devolvió el producto guardado.");
     if(pendingFiles.length)await uploadPhotos(saved.id,pendingFiles);
     await refreshData();
@@ -469,7 +496,7 @@ $("moveForm").onsubmit=async e=>{
   }finally{setBusy(submit,false)}
 };
 async function deleteCurrent(){
-  if(!currentProduct||!confirm(`¿Eliminar "${currentProduct.producto}"? Si tiene movimientos, la base de datos bloqueará el borrado.`))return;
+  if(!currentProduct||!confirm(`¿Eliminar "${currentProduct.producto}"? Esta acción no se puede deshacer; sus movimientos quedarán archivados en el historial.`))return;
   const btn=$("deleteCurrentBtn");setBusy(btn,true,"Eliminando…");
   try{
     const data=await restRpc("eliminar_producto",{p_product_id:currentProduct.id});
@@ -498,7 +525,7 @@ $("printQrBtn").onclick=()=>{
 $("exportBtn").onclick=()=>{
   const btn=$("exportBtn");setBusy(btn,true,"Exportando…");
   try{
-    const inv=products.map(p=>({Código:p.codigo,Producto:p.producto,Categoría:p.categoria,Descripción:p.descripcion,Unidad:p.unidad,Ubicación:p.ubicacion,"Stock Actual":Number(p.stock_actual),"Stock Mínimo":Number(p.stock_minimo),Estado:state(p),Activo:p.activo?"Sí":"No","Diámetro interno":p.diametro_interno,"Diámetro externo":p.diametro_externo,Largo:p.largo,Espesor:p.espesor,"Unidad dimensional":p.unidad_dimensional,"N° fotos":(photosByProduct[p.id]||[]).length}));
+    const inv=products.map(p=>({Código:p.codigo,Producto:p.producto,Categoría:p.categoria,Descripción:p.descripcion,Unidad:p.unidad,Ubicación:p.ubicacion,"Stock Actual":Number(p.stock_actual),"Stock Mínimo":Number(p.stock_minimo),Estado:state(p),Activo:p.activo?"Sí":"No","Diámetro interno":p.diametro_interno,"Diámetro externo":p.diametro_externo,Largo:p.largo,Espesor:p.espesor,"Unidad dimensional":p.unidad_dimensional,Proveedor:p.proveedor??"",Campaña:p.campana??"",Origen:p.origen??"",Tipo:p.tipo_reactivo??"","%Cu":p.porcentaje_cu??"","%Fe":p.porcentaje_fe??"","%SiO₂":p.porcentaje_sio2??"","%S":p.porcentaje_s??"","N° fotos":(photosByProduct[p.id]||[]).length}));
     const mov=movements.map(m=>({Fecha:new Date(m.fecha_hora).toLocaleString("es-CL"),Código:m.productos?.codigo||"",Producto:m.productos?.producto||"",Tipo:m.tipo,Cantidad:Number(m.cantidad),"Stock Anterior":Number(m.stock_anterior),"Stock Posterior":Number(m.stock_posterior),Usuario:m.usuario,Observación:m.observacion}));
     const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(inv),"Inventario");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(mov),"Movimientos");XLSX.writeFile(wb,`inventario-planta-piloto-${new Date().toISOString().slice(0,10)}.xlsx`);
   }catch(err){console.error(err);alert("No se pudo exportar el Excel: "+(err?.message||err))}
@@ -577,7 +604,7 @@ window.addEventListener("error",e=>{console.error("Error de página",e.error||e.
 
 window.debugInventario=async()=>{
   const {data:{session}}=await supabase.auth.getSession();
-  return {version:"4.2",pagina:location.href,usuario:session?.user?.email||null,sesion:!!session?.access_token,productos:products.length,movimientos:movements.length};
+  return {version:"5.0",pagina:location.href,usuario:session?.user?.email||null,sesion:!!session?.access_token,productos:products.length,movimientos:movements.length};
 };
 
 const {data:{session},error:initialSessionError}=await supabase.auth.getSession();
