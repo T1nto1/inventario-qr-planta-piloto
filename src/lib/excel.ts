@@ -23,6 +23,7 @@ export function exportarExcel(productos: Producto[], movimientos: MovConProducto
     Proveedor: p.proveedor ?? "",
     "Tipo de reactivo": p.tipo_reactivo ?? "",
     Origen: p.origen ?? "",
+    Campaña: p.campana ?? "",
     "%Cu": p.porcentaje_cu ?? "",
     "%Fe": p.porcentaje_fe ?? "",
     "%SiO₂": p.porcentaje_sio2 ?? "",
