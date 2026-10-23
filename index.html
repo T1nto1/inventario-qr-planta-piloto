@@ -40,7 +40,7 @@
 <body>
 <div id="authView" class="auth">
   <div class="auth-card">
-    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v5.0</small></div></div>
+    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v6.0</small></div></div>
     <p class="muted">Inventario compartido en la nube.</p>
     <div class="tabs"><button id="tabLogin" class="btn primary">Ingresar</button><button id="tabSignup" class="btn">Registrarse</button></div>
     <form id="authForm" class="grid">
@@ -55,7 +55,7 @@
 <div id="appView" class="app hidden">
 <header>
   <div class="topbar">
-    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v5.0</small></div></div>
+    <div class="brand"><div class="brand-badge">QR</div><div>Inventario QR – Planta Piloto <small style="font-weight:600;color:#64748b">v6.0</small></div></div>
     <nav>
       <button class="nav-btn active" data-page="dashboard">Dashboard</button>
       <button class="nav-btn" data-page="inventario">Inventario</button>
@@ -79,7 +79,7 @@
   <section id="page-inventario" class="hidden">
     <div class="page-head">
       <div><h2>Inventario</h2><p class="muted">Busca, filtra y administra productos.</p></div>
-      <div class="actions"><button id="exportBtn" class="btn">Exportar a Excel</button><button id="newProductBtn" class="btn primary">+ Nuevo producto</button></div>
+      <div class="actions"><button id="exportBtn" class="btn">Exportar a Excel</button><button id="planBtn" class="btn">Planificar pruebas</button><button id="newProductBtn" class="btn primary">+ Nuevo producto</button></div>
     </div>
     <div class="search-row"><input id="searchInput" placeholder="Buscar código, producto, categoría, ubicación, proveedor, campaña u origen…"><select id="categoryFilter"></select></div>
     <div class="search-row" style="grid-template-columns:1fr 1fr"><select id="campanaFilter"></select><select id="proveedorFilter"></select></div>
@@ -103,6 +103,18 @@
   <section id="page-escanear" class="hidden">
     <div class="page-head"><div><h2>Escanear QR</h2><p class="muted">Usa la cámara o busca el código manualmente.</p></div></div>
     <div class="card scanner"><div id="qr-reader"></div><div class="actions" style="margin-top:12px"><button id="startScanner" class="btn primary">Activar cámara</button><button id="stopScanner" class="btn">Detener</button></div><div style="margin-top:14px"><input id="manualCode" placeholder="Ej. PER-001"><button id="manualGo" class="btn primary" style="margin-top:8px;width:100%">Abrir producto</button></div></div>
+  </section>
+
+  <section id="page-planificar" class="hidden">
+    <div class="page-head"><div><h2>Planificar pruebas</h2><p class="muted">Cálculo orientativo. No descuenta stock.</p></div><button id="planBack" class="btn">← Inventario</button></div>
+    <div class="card"><div class="form-grid">
+      <div class="field"><label>Crisol</label><select id="plCrisol"></select></div>
+      <div class="field"><label>Material (reactivo)</label><select id="plMaterial"></select></div>
+      <div class="field"><label>Tipo de prueba</label><select id="plTipo"><option value="Horizontal">Horizontal</option><option value="Vertical">Vertical</option></select></div>
+      <div class="field"><label>Masa por prueba *</label><div style="display:flex;gap:6px"><input id="plMasa" type="number" min="0" step="any"><select id="plMasaU" style="max-width:80px"><option>g</option><option>kg</option></select></div></div>
+      <div class="field"><label>Densidad aparente efectiva (g/cm³, opcional)</label><input id="plDens" type="number" min="0" step="any" placeholder="Usa la del material si existe"></div>
+    </div></div>
+    <div id="plResult" style="margin-top:14px"></div>
   </section>
 
   <section id="page-producto" class="hidden">
@@ -134,12 +146,27 @@
     <div class="field"><label for="pctFe">%Fe</label><input id="pctFe" type="number" min="0" max="100" step="any"></div>
     <div class="field"><label for="pctSio2">%SiO₂</label><input id="pctSio2" type="number" min="0" max="100" step="any"></div>
     <div class="field"><label for="pctS">%S</label><input id="pctS" type="number" min="0" max="100" step="any"></div>
+    <div class="field"><label for="tipoPrueba">Tipo de prueba (opcional)</label><select id="tipoPrueba"><option value="">Sin especificar</option><option>Horizontal</option><option>Vertical</option></select></div>
+    <div class="field"><label for="masaNeta">Masa neta por unidad o envase (opcional)</label><div style="display:flex;gap:6px"><input id="masaNeta" type="number" min="0" step="any"><select id="unidadMasa" style="max-width:80px"><option value="">—</option><option>g</option><option>kg</option></select></div></div>
+    <div class="field"><label for="densidadAp">Densidad aparente (g/cm³, opcional)</label><input id="densidadAp" type="number" min="0" step="any"></div>
     <div class="span2 section-title">Dimensiones (opcionales)</div>
     <div class="field"><label>Diámetro interno</label><input id="diametroInterno" type="number" min="0" step="any"></div>
     <div class="field"><label>Diámetro externo</label><input id="diametroExterno" type="number" min="0" step="any"></div>
     <div class="field"><label>Largo</label><input id="largo" type="number" min="0" step="any"></div>
     <div class="field"><label>Espesor</label><input id="espesor" type="number" min="0" step="any"></div>
     <div class="field"><label>Unidad dimensional</label><select id="unidadDim"><option>mm</option><option>cm</option><option>m</option></select></div>
+    <div id="crisolSection" class="span2 hidden"><div class="section-title">Geometría interior y volumen útil (crisol)</div>
+      <p class="muted" style="font-size:12px">Ingresa medidas INTERIORES en la unidad dimensional seleccionada arriba. No se deducen del diámetro externo ni del espesor.</p>
+      <div class="form-grid">
+        <div class="field"><label>Geometría</label><select id="geometria"><option value="">Sin especificar</option><option>Cilíndrico</option><option>Rectangular</option><option>Tronco cónico</option></select></div>
+        <div class="field geo geo-cil"><label>Diámetro interior</label><input id="dIntCil" type="number" min="0" step="any"></div>
+        <div class="field geo geo-rec"><label>Largo interior</label><input id="largoInt" type="number" min="0" step="any"></div>
+        <div class="field geo geo-rec"><label>Ancho interior</label><input id="anchoInt" type="number" min="0" step="any"></div>
+        <div class="field geo geo-tc"><label>Diámetro interior superior</label><input id="dSup" type="number" min="0" step="any"></div>
+        <div class="field geo geo-tc"><label>Diámetro interior inferior</label><input id="dInf" type="number" min="0" step="any"></div>
+        <div class="field geo geo-cil geo-rec geo-tc"><label>Altura interior</label><input id="alturaInt" type="number" min="0" step="any"></div>
+        <div class="field"><label>Factor de llenado útil (%)</label><input id="factorLl" type="number" min="0" max="100" step="any"></div>
+      </div><div id="volPreview" class="msg" style="margin-top:8px"></div></div>
     <div class="field"><label>Producto activo</label><select id="activo"><option value="true">Sí</option><option value="false">No</option></select></div>
     <div class="span2 section-title">Fotos (opcional, máximo 3)</div>
     <div class="field span2"><input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple><div id="photoPreview" class="gallery" style="margin-top:10px"></div></div>
@@ -274,6 +301,35 @@ async function signedUrl(path){
     return s.startsWith("http")?s:`${SUPABASE_URL}/storage/v1${s}`;
   }catch(e){console.warn("No se pudo firmar foto",e);return null}
 }
+// ===== Cálculos puros v6.0 =====
+const CALC={
+  aCm(v,u){const f={mm:0.1,cm:1,m:100}[u||"mm"];return v==null||f==null?NaN:Number(v)*f},
+  aG(v,u){const f={g:1,kg:1000}[u];return v==null||f==null?NaN:Number(v)*f},
+  pos(...a){return a.every(x=>Number.isFinite(x)&&x>0)},
+  volCilindro(d,h){return CALC.pos(d,h)?Math.PI*(d/2)**2*h:null},
+  volRect(l,w,h){return CALC.pos(l,w,h)?l*w*h:null},
+  volTronco(ds,di,h){return CALC.pos(ds,di,h)?Math.PI*h*(ds*ds+ds*di+di*di)/12:null},
+  volUtil(v,f){return v!=null&&Number.isFinite(f)&&f>0&&f<=100?v*f/100:null},
+  numPruebas(disp,porPrueba){return CALC.pos(porPrueba)&&Number.isFinite(disp)&&disp>=0?Math.floor(disp/porPrueba+1e-9):null},
+  masaMax(vUtil,dens){return CALC.pos(vUtil,dens)?vUtil*dens:null}
+};
+function volCrisol(p){
+  const u=p.unidad_dimensional||"mm",c=k=>p[k]==null?NaN:CALC.aCm(p[k],u);let v=null;
+  if(p.geometria_crisol==="Cilíndrico")v=CALC.volCilindro(c("diametro_interior_superior"),c("altura_interior"));
+  else if(p.geometria_crisol==="Rectangular")v=CALC.volRect(c("largo_interior"),c("ancho_interior"),c("altura_interior"));
+  else if(p.geometria_crisol==="Tronco cónico")v=CALC.volTronco(c("diametro_interior_superior"),c("diametro_interior_inferior"),c("altura_interior"));
+  const f=p.factor_llenado_pct==null?NaN:Number(p.factor_llenado_pct);
+  return {geo:v,util:CALC.volUtil(v,f),factor:Number.isFinite(f)?f:null};
+}
+function fmt(n,d=1){return Number(n).toLocaleString("es-CL",{maximumFractionDigits:d})}
+function volHtml(r){if(r.geo==null)return "";return `Volumen geométrico: <b>${fmt(r.geo)} cm³ (${fmt(r.geo)} mL)</b><br>`+(r.util==null?"Ingresar porcentaje de llenado útil":`Volumen útil (${fmt(r.factor)} %): <b>${fmt(r.util)} cm³ (${fmt(r.util)} mL)</b>`)+`<br><small class="muted">Aproximación geométrica; crisoles irregulares (navecillas, formas especiales) pueden diferir.</small>`}
+function esCrisol(c){return String(c||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").startsWith("crisol")}
+function esReact(c){return /^reactivos? quimicos?$/.test(String(c||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," "))}
+function masaDisponibleG(p){
+  if(p.unidad==="g"||p.unidad==="kg")return {g:CALC.aG(p.stock_actual,p.unidad)};
+  if(p.masa_neta==null||!p.unidad_masa)return {g:null,falta:"Falta dato: masa neta por unidad/envase"};
+  return {g:Number(p.stock_actual)*CALC.aG(p.masa_neta,p.unidad_masa)};
+}
 async function refreshData(){
   const [p,m,f]=await Promise.all([
     apiFetch("/rest/v1/productos?select=*&order=codigo.asc"),
@@ -325,7 +381,7 @@ function renderMoves(){
   $("movTable").innerHTML=movements.map(m=>`<tr><td>${new Date(m.fecha_hora).toLocaleString("es-CL")}</td><td>${esc(m.productos?.codigo||"")}</td><td>${esc(m.productos?.producto||"")}</td><td>${esc(m.tipo)}</td><td>${Number(m.cantidad)}</td><td>${Number(m.stock_anterior)}</td><td>${Number(m.stock_posterior)}</td><td>${esc(m.usuario)}</td><td>${esc(m.observacion||"")}</td></tr>`).join("");
 }
 function showPage(name){
-  ["dashboard","inventario","movimientos","escanear","producto"].forEach(p=>$("page-"+p).classList.toggle("hidden",p!==name));
+  ["dashboard","inventario","movimientos","escanear","producto","planificar"].forEach(p=>$("page-"+p).classList.toggle("hidden",p!==name));
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
 }
 document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
@@ -333,6 +389,34 @@ $("searchInput").oninput=renderProducts;$("categoryFilter").onchange=renderProdu
 ["campanaFilter","proveedorFilter","origenFilter","tipoFilter"].forEach(i=>$(i).onchange=renderProducts);
 ["Cu","Fe","Sio2","S"].forEach(x=>{$("min"+x).oninput=renderProducts;$("max"+x).oninput=renderProducts});
 $("newProductBtn").onclick=()=>openProductDialog(null);
+function openPlanner(crisolId){
+  const opt=(arr)=>`<option value="">Seleccionar…</option>`+arr.sort((a,b)=>a.codigo.localeCompare(b.codigo)).map(p=>`<option value="${p.id}">${esc(p.codigo)} · ${esc(p.producto)}</option>`).join("");
+  $("plCrisol").innerHTML=opt(products.filter(p=>esCrisol(p.categoria)));$("plMaterial").innerHTML=opt(products.filter(p=>esReact(p.categoria)));
+  if(crisolId)$("plCrisol").value=crisolId;showPage("planificar");renderPlan();
+}
+function renderPlan(){
+  const c=products.find(p=>p.id===$("plCrisol").value),m=products.find(p=>p.id===$("plMaterial").value);
+  const masaIn=$("plMasa").value===""?NaN:Number($("plMasa").value),mp=CALC.aG(masaIn,$("plMasaU").value),tipo=$("plTipo").value;
+  const out=[];
+  if(!c||!m){$("plResult").innerHTML='<div class="msg">Selecciona un crisol y un material.</div>';return}
+  if(!CALC.pos(mp)){$("plResult").innerHTML='<div class="msg err">Ingresa una masa por prueba numérica mayor que 0.</div>';return}
+  const densIn=$("plDens").value===""?null:Number($("plDens").value);
+  if(densIn!=null&&!CALC.pos(densIn)){$("plResult").innerHTML='<div class="msg err">La densidad aparente debe ser mayor que 0.</div>';return}
+  const dens=densIn??(m.densidad_aparente_g_cm3!=null?Number(m.densidad_aparente_g_cm3):null);
+  const md=masaDisponibleG(m),n=md.g==null?null:CALC.numPruebas(md.g,mp);
+  out.push(`<div class="card"><h3>Material: ${esc(m.codigo)}</h3><p>Stock: <b>${fmt(m.stock_actual,3)} ${esc(m.unidad)}</b>${m.masa_neta!=null?` · masa neta ${fmt(m.masa_neta,3)} ${esc(m.unidad_masa||"")}/unidad`:""}</p>`+
+    (md.g==null?`<div class="msg err">${md.falta}. No se infiere desde el nombre ni el código.</div>`:`<p>Masa disponible: <b>${fmt(md.g,2)} g</b> · Pruebas por material: <b>${n}</b> · Remanente: <b>${fmt(md.g-n*mp,2)} g</b></p>`)+`</div>`);
+  const vr=volCrisol(c);let vol;
+  if(vr.geo==null||vr.util==null||dens==null)vol=`<div class="msg">Compatibilidad volumétrica sin verificar${vr.geo==null?" (falta geometría interior)":vr.util==null?" (Ingresar porcentaje de llenado útil)":" (falta densidad aparente)"}.</div>`;
+  else{const vreq=mp/dens,max=CALC.masaMax(vr.util,dens);
+    vol=vreq>vr.util?`<div class="msg err">El volumen requerido (${fmt(vreq)} cm³) excede el volumen útil (${fmt(vr.util)} cm³). <b>0 pruebas factibles con este crisol</b> bajo esta hipótesis${n?`, aunque el material rinda ${n}`:""}.</div>`
+      :`<div class="msg ok">Volumen requerido ${fmt(vreq)} cm³ ≤ útil ${fmt(vr.util)} cm³. Masa máxima orientativa: <b>${fmt(max)} g</b>.</div>`}
+  out.push(`<div class="card" style="margin-top:10px"><h3>Crisol: ${esc(c.codigo)}</h3><p>Existencia: <b>${fmt(c.stock_actual,3)} ${esc(c.unidad)}</b> · Prueba ${esc(tipo)}</p>${vr.geo!=null?`<p>${volHtml(vr)}</p>`:""}${vol}</div>`);
+  out.push(`<div class="msg" style="margin-top:10px">⚠ Cálculo orientativo: no considera espumación ni expansión del material${tipo==="Horizontal"?"; en prueba horizontal el nivel de llenado cambia respecto de la posición vertical":""}. No asume si el crisol es consumible o reutilizable y no descuenta stock. Confirmar con supervisión; no sustituye el ensayo.</div>`);
+  $("plResult").innerHTML=out.join("");
+}
+["plCrisol","plMaterial","plTipo","plMasaU"].forEach(i=>$(i).onchange=renderPlan);["plMasa","plDens"].forEach(i=>$(i).oninput=renderPlan);
+$("planBtn").onclick=()=>openPlanner(null);$("planBack").onclick=()=>showPage("inventario");
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());
 
 function openProduct(id){
@@ -357,10 +441,17 @@ function renderDetail(){
       ${dimRow("Diámetro externo",p.diametro_externo,p.unidad_dimensional)}
       ${dimRow("Largo",p.largo,p.unidad_dimensional)}
       ${dimRow("Espesor",p.espesor,p.unidad_dimensional)}
+      ${txtRow("Tipo de prueba",p.tipo_prueba)}${p.masa_neta!=null?txtRow("Masa neta por unidad",Number(p.masa_neta)+" "+(p.unidad_masa||"")):""}${p.densidad_aparente_g_cm3!=null?txtRow("Densidad aparente",Number(p.densidad_aparente_g_cm3)+" g/cm³"):""}
+      ${txtRow("Geometría interior",p.geometria_crisol)}
+      ${dimRow(p.geometria_crisol==="Tronco cónico"?"Diámetro interior superior":"Diámetro interior",p.diametro_interior_superior,p.unidad_dimensional)}${dimRow("Diámetro interior inferior",p.diametro_interior_inferior,p.unidad_dimensional)}
+      ${dimRow("Largo interior",p.largo_interior,p.unidad_dimensional)}${dimRow("Ancho interior",p.ancho_interior,p.unidad_dimensional)}${dimRow("Altura interior",p.altura_interior,p.unidad_dimensional)}
+      ${p.factor_llenado_pct!=null?txtRow("Factor de llenado útil",Number(p.factor_llenado_pct)+" %"):""}
     </div></div>
     <div class="card"><div class="page-head"><h3>Registrar movimiento</h3><button id="detailMove" class="btn primary">Nuevo movimiento</button></div></div>
     <div class="card"><h3>Historial</h3><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Stock</th><th>Usuario</th><th>Obs.</th></tr></thead><tbody>${movements.filter(m=>m.product_id===p.id).map(m=>`<tr><td>${new Date(m.fecha_hora).toLocaleString("es-CL")}</td><td>${m.tipo}</td><td>${Number(m.cantidad_firmada)>0?"+":""}${Number(m.cantidad_firmada)}</td><td>${Number(m.stock_anterior)} → ${Number(m.stock_posterior)}</td><td>${esc(m.usuario)}</td><td>${esc(m.observacion||"")}</td></tr>`).join("")}</tbody></table></div></div>
   </div>`;
+  const vr=volCrisol(p);if(vr.geo!=null||esCrisol(p.categoria))$("productDetail").querySelector(".detail-grid").insertAdjacentHTML("afterend",`<div class="msg ok" style="margin-top:10px">${vr.geo!=null?volHtml(vr):"Sin geometría interior registrada."}</div>${esCrisol(p.categoria)?'<button id="detailPlan" class="btn" style="margin-top:8px">Planificar pruebas con este crisol</button>':""}`);
+  $("detailPlan")&&($("detailPlan").onclick=()=>openPlanner(p.id));
   $("detailMove").onclick=()=>openMove(p.id);
 }
 $("backInventory").onclick=()=>{showPage("inventario");location.hash=""};
@@ -378,11 +469,26 @@ function openProductDialog(p){
   $("unidadDim").value=p?.unidad_dimensional||"mm";
   $("proveedor").value=p?.proveedor??"";$("campana").value=p?.campana??"";$("origen").value=p?.origen??"";$("tipoReactivo").value=p?.tipo_reactivo??"";
   $("pctCu").value=p?.porcentaje_cu??"";$("pctFe").value=p?.porcentaje_fe??"";$("pctSio2").value=p?.porcentaje_sio2??"";$("pctS").value=p?.porcentaje_s??"";$("activo").value=String(p?.activo??true);
+  $("tipoPrueba").value=p?.tipo_prueba??"";$("masaNeta").value=p?.masa_neta??"";$("unidadMasa").value=p?.unidad_masa??"";$("densidadAp").value=p?.densidad_aparente_g_cm3??"";
+  $("geometria").value=p?.geometria_crisol??"";$("dIntCil").value=p?.geometria_crisol==="Cilíndrico"?(p?.diametro_interior_superior??""):"";$("dSup").value=p?.geometria_crisol==="Tronco cónico"?(p?.diametro_interior_superior??""):"";
+  $("dInf").value=p?.diametro_interior_inferior??"";$("largoInt").value=p?.largo_interior??"";$("anchoInt").value=p?.ancho_interior??"";$("alturaInt").value=p?.altura_interior??"";$("factorLl").value=p?.factor_llenado_pct??"";
   const cat=CATS.includes(p?.categoria) ? p.categoria : (p?.categoria?"Otra":"Tubos");$("categoriaSelect").value=cat;$("categoriaOtra").value=cat==="Otra"?(p?.categoria||""):"";toggleOtra();
   renderPhotoPreview(p?.id);$("productDialog").showModal();
 }
-function toggleOtra(){$("otraCatWrap").classList.toggle("hidden",$("categoriaSelect").value!=="Otra")}
-$("categoriaSelect").onchange=toggleOtra;
+function catActual(){return $("categoriaSelect").value==="Otra"?$("categoriaOtra").value:$("categoriaSelect").value}
+function toggleOtra(){$("otraCatWrap").classList.toggle("hidden",$("categoriaSelect").value!=="Otra");$("crisolSection").classList.toggle("hidden",!esCrisol(catActual()));updGeo()}
+function geoPayload(){const g=$("geometria").value||null,n=id=>numOrNull($(id).value);
+  return {geometria_crisol:g,diametro_interior_superior:g==="Cilíndrico"?n("dIntCil"):g==="Tronco cónico"?n("dSup"):null,diametro_interior_inferior:g==="Tronco cónico"?n("dInf"):null,
+    largo_interior:g==="Rectangular"?n("largoInt"):null,ancho_interior:g==="Rectangular"?n("anchoInt"):null,altura_interior:g?n("alturaInt"):null,factor_llenado_pct:n("factorLl")}}
+function updGeo(){const g=$("geometria").value;const cls={"Cilíndrico":"geo-cil","Rectangular":"geo-rec","Tronco cónico":"geo-tc"}[g];
+  document.querySelectorAll("#crisolSection .geo").forEach(el=>el.classList.toggle("hidden",!cls||!el.classList.contains(cls)));
+  const gp=geoPayload(),vals=Object.entries(gp).filter(([k,v])=>k!=="geometria_crisol"&&v!=null);
+  let msg="";if(vals.some(([k,v])=>Number.isNaN(v)||v<=0))msg="Las medidas interiores y el factor deben ser números positivos.";
+  else if(gp.factor_llenado_pct!=null&&gp.factor_llenado_pct>100)msg="El factor de llenado debe ser mayor que 0 y hasta 100 %.";
+  else if(g){const r=volCrisol({...gp,unidad_dimensional:$("unidadDim").value});msg=r.geo==null?"Completa las medidas interiores para calcular el volumen.":volHtml(r)}
+  $("volPreview").innerHTML=msg}
+$("categoriaSelect").onchange=toggleOtra;$("categoriaOtra").oninput=toggleOtra;
+["geometria","unidadDim"].forEach(i=>$(i).onchange=updGeo);["dIntCil","dSup","dInf","largoInt","anchoInt","alturaInt","factorLl"].forEach(i=>$(i).oninput=updGeo);
 $("photoInput").onchange=()=>{
   const fs=[...$("photoInput").files];if(fs.some(f=>f.size>5*1024*1024||!["image/jpeg","image/png","image/webp"].includes(f.type))){setMsg("productFormMsg","Solo JPG/PNG/WEBP de máximo 5 MB.");return}
   pendingFiles=fs.slice(0,3);renderPhotoPreview($("productId").value||null);
@@ -447,7 +553,12 @@ $("productForm").onsubmit=async e=>{
       stock_actual:Number($("stockActual").value||0),stock_minimo:Number($("stockMinimo").value||0),activo:$("activo").value==="true",
       diametro_interno:numOrNull($("diametroInterno").value),diametro_externo:numOrNull($("diametroExterno").value),largo:numOrNull($("largo").value),espesor:numOrNull($("espesor").value),unidad_dimensional:$("unidadDim").value,
       proveedor:txtOrNull($("proveedor").value),campana:txtOrNull($("campana").value),origen:txtOrNull($("origen").value),tipo_reactivo:$("tipoReactivo").value||null,
-      porcentaje_cu:numOrNull($("pctCu").value),porcentaje_fe:numOrNull($("pctFe").value),porcentaje_sio2:numOrNull($("pctSio2").value),porcentaje_s:numOrNull($("pctS").value)};
+      porcentaje_cu:numOrNull($("pctCu").value),porcentaje_fe:numOrNull($("pctFe").value),porcentaje_sio2:numOrNull($("pctSio2").value),porcentaje_s:numOrNull($("pctS").value),
+      tipo_prueba:$("tipoPrueba").value||null,masa_neta:numOrNull($("masaNeta").value),unidad_masa:$("unidadMasa").value||null,densidad_aparente_g_cm3:numOrNull($("densidadAp").value),
+      ...(esCrisol(categoria)?geoPayload():{})};
+    for(const k of ["masa_neta","densidad_aparente_g_cm3","diametro_interior_superior","diametro_interior_inferior","largo_interior","ancho_interior","altura_interior","factor_llenado_pct"])if(payload[k]!=null&&(Number.isNaN(payload[k])||payload[k]<=0))throw new Error("Masa, densidad, medidas interiores y factor de llenado deben ser números positivos.");
+    if(payload.factor_llenado_pct!=null&&payload.factor_llenado_pct>100)throw new Error("El factor de llenado debe ser mayor que 0 y hasta 100 %.");
+    if(payload.masa_neta!=null&&!payload.unidad_masa)throw new Error("Selecciona la unidad de masa (g o kg).");
     for(const [k,t] of PCTS)if(payload[k]!=null&&(Number.isNaN(payload[k])||payload[k]<0||payload[k]>100))throw new Error(`${t} debe estar entre 0 y 100.`);
     if(!payload.codigo) throw new Error("El código es obligatorio.");
     if(!payload.producto) throw new Error("El nombre del producto es obligatorio.");
@@ -525,7 +636,7 @@ $("printQrBtn").onclick=()=>{
 $("exportBtn").onclick=()=>{
   const btn=$("exportBtn");setBusy(btn,true,"Exportando…");
   try{
-    const inv=products.map(p=>({Código:p.codigo,Producto:p.producto,Categoría:p.categoria,Descripción:p.descripcion,Unidad:p.unidad,Ubicación:p.ubicacion,"Stock Actual":Number(p.stock_actual),"Stock Mínimo":Number(p.stock_minimo),Estado:state(p),Activo:p.activo?"Sí":"No","Diámetro interno":p.diametro_interno,"Diámetro externo":p.diametro_externo,Largo:p.largo,Espesor:p.espesor,"Unidad dimensional":p.unidad_dimensional,Proveedor:p.proveedor??"",Campaña:p.campana??"",Origen:p.origen??"",Tipo:p.tipo_reactivo??"","%Cu":p.porcentaje_cu??"","%Fe":p.porcentaje_fe??"","%SiO₂":p.porcentaje_sio2??"","%S":p.porcentaje_s??"","N° fotos":(photosByProduct[p.id]||[]).length}));
+    const inv=products.map(p=>({Código:p.codigo,Producto:p.producto,Categoría:p.categoria,Descripción:p.descripcion,Unidad:p.unidad,Ubicación:p.ubicacion,"Stock Actual":Number(p.stock_actual),"Stock Mínimo":Number(p.stock_minimo),Estado:state(p),Activo:p.activo?"Sí":"No","Diámetro interno":p.diametro_interno,"Diámetro externo":p.diametro_externo,Largo:p.largo,Espesor:p.espesor,"Unidad dimensional":p.unidad_dimensional,Proveedor:p.proveedor??"",Campaña:p.campana??"",Origen:p.origen??"",Tipo:p.tipo_reactivo??"","%Cu":p.porcentaje_cu??"","%Fe":p.porcentaje_fe??"","%SiO₂":p.porcentaje_sio2??"","%S":p.porcentaje_s??"","Tipo de prueba":p.tipo_prueba??"","Masa neta":p.masa_neta??"","Unidad masa":p.unidad_masa??"","Geometría crisol":p.geometria_crisol??"","Altura interior":p.altura_interior??"","Largo interior":p.largo_interior??"","Ancho interior":p.ancho_interior??"","Diámetro interior superior":p.diametro_interior_superior??"","Diámetro interior inferior":p.diametro_interior_inferior??"","Factor llenado %":p.factor_llenado_pct??"","Densidad aparente g/cm3":p.densidad_aparente_g_cm3??"","N° fotos":(photosByProduct[p.id]||[]).length}));
     const mov=movements.map(m=>({Fecha:new Date(m.fecha_hora).toLocaleString("es-CL"),Código:m.productos?.codigo||"",Producto:m.productos?.producto||"",Tipo:m.tipo,Cantidad:Number(m.cantidad),"Stock Anterior":Number(m.stock_anterior),"Stock Posterior":Number(m.stock_posterior),Usuario:m.usuario,Observación:m.observacion}));
     const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(inv),"Inventario");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(mov),"Movimientos");XLSX.writeFile(wb,`inventario-planta-piloto-${new Date().toISOString().slice(0,10)}.xlsx`);
   }catch(err){console.error(err);alert("No se pudo exportar el Excel: "+(err?.message||err))}
@@ -602,9 +713,12 @@ window.addEventListener("hashchange",routeHash);
 window.addEventListener("unhandledrejection",e=>{console.error("Promesa no controlada",e.reason);alert("Error inesperado: "+(e.reason?.message||e.reason||"desconocido"))});
 window.addEventListener("error",e=>{console.error("Error de página",e.error||e.message)});
 
+window.testCalcInventario=()=>{const ok=(a,b)=>Math.abs(a-b)<0.01;return {
+  cilindro:ok(CALC.volCilindro(10,10),785.398),rect:CALC.volRect(10,5,4)===200,tronco:ok(CALC.volTronco(10,6,12),615.752),
+  pruebas:CALC.numPruebas(CALC.aG(2,"kg"),250)===8,masaMax:CALC.masaMax(200,2)===400,mm3:ok(CALC.aCm(10,"mm")**3,1)}};
 window.debugInventario=async()=>{
   const {data:{session}}=await supabase.auth.getSession();
-  return {version:"5.0",pagina:location.href,usuario:session?.user?.email||null,sesion:!!session?.access_token,productos:products.length,movimientos:movements.length};
+  return {version:"6.0",calc:CALC,pagina:location.href,usuario:session?.user?.email||null,sesion:!!session?.access_token,productos:products.length,movimientos:movements.length};
 };
 
 const {data:{session},error:initialSessionError}=await supabase.auth.getSession();
