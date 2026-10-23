@@ -162,16 +162,25 @@ export type Database = {
       productos: {
         Row: {
           activo: boolean
+          altura_interior: number | null
+          ancho_interior: number | null
           campana: string | null
           categoria: string
           codigo: string
           created_at: string
+          densidad_aparente_g_cm3: number | null
           descripcion: string
           diametro_externo: number | null
+          diametro_interior_inferior: number | null
+          diametro_interior_superior: number | null
           diametro_interno: number | null
           espesor: number | null
+          factor_llenado_pct: number | null
+          geometria_crisol: string | null
           id: string
           largo: number | null
+          largo_interior: number | null
+          masa_neta: number | null
           origen: string | null
           porcentaje_cu: number | null
           porcentaje_fe: number | null
@@ -181,24 +190,35 @@ export type Database = {
           proveedor: string | null
           stock_actual: number
           stock_minimo: number
+          tipo_prueba: string | null
           tipo_reactivo: string | null
           ubicacion: string
           unidad: string
           unidad_dimensional: string
+          unidad_masa: string | null
           updated_at: string
         }
         Insert: {
           activo?: boolean
+          altura_interior?: number | null
+          ancho_interior?: number | null
           campana?: string | null
           categoria?: string
           codigo: string
           created_at?: string
+          densidad_aparente_g_cm3?: number | null
           descripcion?: string
           diametro_externo?: number | null
+          diametro_interior_inferior?: number | null
+          diametro_interior_superior?: number | null
           diametro_interno?: number | null
           espesor?: number | null
+          factor_llenado_pct?: number | null
+          geometria_crisol?: string | null
           id?: string
           largo?: number | null
+          largo_interior?: number | null
+          masa_neta?: number | null
           origen?: string | null
           porcentaje_cu?: number | null
           porcentaje_fe?: number | null
@@ -208,24 +228,35 @@ export type Database = {
           proveedor?: string | null
           stock_actual?: number
           stock_minimo?: number
+          tipo_prueba?: string | null
           tipo_reactivo?: string | null
           ubicacion?: string
           unidad?: string
           unidad_dimensional?: string
+          unidad_masa?: string | null
           updated_at?: string
         }
         Update: {
           activo?: boolean
+          altura_interior?: number | null
+          ancho_interior?: number | null
           campana?: string | null
           categoria?: string
           codigo?: string
           created_at?: string
+          densidad_aparente_g_cm3?: number | null
           descripcion?: string
           diametro_externo?: number | null
+          diametro_interior_inferior?: number | null
+          diametro_interior_superior?: number | null
           diametro_interno?: number | null
           espesor?: number | null
+          factor_llenado_pct?: number | null
+          geometria_crisol?: string | null
           id?: string
           largo?: number | null
+          largo_interior?: number | null
+          masa_neta?: number | null
           origen?: string | null
           porcentaje_cu?: number | null
           porcentaje_fe?: number | null
@@ -235,10 +266,12 @@ export type Database = {
           proveedor?: string | null
           stock_actual?: number
           stock_minimo?: number
+          tipo_prueba?: string | null
           tipo_reactivo?: string | null
           ubicacion?: string
           unidad?: string
           unidad_dimensional?: string
+          unidad_masa?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -329,16 +362,25 @@ export type Database = {
         }
         Returns: {
           activo: boolean
+          altura_interior: number | null
+          ancho_interior: number | null
           campana: string | null
           categoria: string
           codigo: string
           created_at: string
+          densidad_aparente_g_cm3: number | null
           descripcion: string
           diametro_externo: number | null
+          diametro_interior_inferior: number | null
+          diametro_interior_superior: number | null
           diametro_interno: number | null
           espesor: number | null
+          factor_llenado_pct: number | null
+          geometria_crisol: string | null
           id: string
           largo: number | null
+          largo_interior: number | null
+          masa_neta: number | null
           origen: string | null
           porcentaje_cu: number | null
           porcentaje_fe: number | null
@@ -348,10 +390,12 @@ export type Database = {
           proveedor: string | null
           stock_actual: number
           stock_minimo: number
+          tipo_prueba: string | null
           tipo_reactivo: string | null
           ubicacion: string
           unidad: string
           unidad_dimensional: string
+          unidad_masa: string | null
           updated_at: string
         }
         SetofOptions: {
